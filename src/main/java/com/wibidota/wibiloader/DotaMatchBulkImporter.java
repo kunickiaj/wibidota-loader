@@ -61,20 +61,15 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       this.obj = obj;
     }
 
-      @Override
-      public boolean equals(Object obj) {
-          return super.equals(obj);    //To change body of overridden methods use File | Settings | File Templates.
-      }
-
-      private int readInt(String key){
+    public int readInt(String key){
       return (((Number) obj.get(key)).intValue());
     }
 
-    private boolean readBool(String key){
+    public boolean readBool(String key){
       return (Boolean) obj.get(key);
     }
 
-    private long readLong(String key){
+    public long readLong(String key){
       return (((Number) obj.get(key)).longValue());
     }
 
@@ -87,6 +82,7 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
     }
 
     public List<Integer> readIntArray(String key){
+      // TODO: technically we can only assume List<Number> will work
       return (List<Integer>) obj.get(key);
     }
 
