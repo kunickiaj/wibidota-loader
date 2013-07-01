@@ -67,7 +67,7 @@ protocol DotaStats {
     int tower_damage;
     int hero_id;
     double exp_per_minute;
-    int account_id;
+    long account_id;
     int kills;
     LeaverStatus leaver_status;
     int hero_healing;

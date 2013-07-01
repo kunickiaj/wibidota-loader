@@ -62,7 +62,11 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
     }
 
     public int readInt(String key){
-      return (((Number) obj.get(key)).intValue());
+      Number n = (Number) obj.get(key);
+      int out = n.intValue();
+      assert(n.longValue() == out);
+      assert(n.doubleValue()%1.0 == 0.0);
+      return out;
     }
 
     public boolean readBool(String key){
@@ -70,7 +74,10 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
     }
 
     public long readLong(String key){
-      return (((Number) obj.get(key)).longValue());
+      Number n = (Number) obj.get(key);
+      long out = n.longValue();
+      assert(n.doubleValue()%1.0 == 0.0);
+      return out;
     }
 
     public double readDouble(String key){
@@ -79,11 +86,6 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
 
     public List<Object> readArray(String key){
       return (List<Object>) obj.get(key);
-    }
-
-    public List<Integer> readIntArray(String key){
-      // TODO: technically we can only assume List<Number> will work
-      return (List<Integer>) obj.get(key);
     }
 
     public String readString(String key){
@@ -142,7 +144,7 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
 
     // Set everything else
     return builder
-             .setAccountId(reader.readInt("account_id"))
+             .setAccountId(reader.readLong("account_id"))
              .setAssists(reader.readInt("assists"))
              .setDeaths(reader.readInt("deaths"))
              .setDenies(reader.readInt("denies"))

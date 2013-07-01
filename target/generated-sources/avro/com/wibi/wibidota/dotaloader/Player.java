@@ -7,7 +7,7 @@ package com.wibi.wibidota.dotaloader;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class Player extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Player\",\"namespace\":\"com.wibi.wibidota.dotaloader\",\"fields\":[{\"name\":\"gold_spent\",\"type\":\"int\"},{\"name\":\"gold\",\"type\":\"int\"},{\"name\":\"deaths\",\"type\":\"int\"},{\"name\":\"hero_damage\",\"type\":\"int\"},{\"name\":\"last_hits\",\"type\":\"int\"},{\"name\":\"player_slot\",\"type\":\"int\"},{\"name\":\"denies\",\"type\":\"int\"},{\"name\":\"ability_upgrades\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"AbilityUpgrade\",\"fields\":[{\"name\":\"level\",\"type\":\"int\"},{\"name\":\"ability_id\",\"type\":\"int\"},{\"name\":\"time\",\"type\":\"int\"}]}}},{\"name\":\"tower_damage\",\"type\":\"int\"},{\"name\":\"hero_id\",\"type\":\"int\"},{\"name\":\"exp_per_minute\",\"type\":\"double\"},{\"name\":\"account_id\",\"type\":\"int\"},{\"name\":\"kills\",\"type\":\"int\"},{\"name\":\"leaver_status\",\"type\":{\"type\":\"enum\",\"name\":\"LeaverStatus\",\"symbols\":[\"BOT\",\"ABANDON\",\"SAFE_ABANDON\",\"STAYED\"]}},{\"name\":\"hero_healing\",\"type\":\"int\"},{\"name\":\"assists\",\"type\":\"int\"},{\"name\":\"gold_per_minute\",\"type\":\"double\"},{\"name\":\"level\",\"type\":\"int\"},{\"name\":\"item_ids\",\"type\":{\"type\":\"array\",\"items\":\"int\"}},{\"name\":\"additional_units\",\"type\":[\"null\",{\"type\":\"record\",\"name\":\"AdditionalUnit\",\"fields\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"item_ids\",\"type\":{\"type\":\"array\",\"items\":\"int\"}}]}]}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Player\",\"namespace\":\"com.wibi.wibidota.dotaloader\",\"fields\":[{\"name\":\"gold_spent\",\"type\":\"int\"},{\"name\":\"gold\",\"type\":\"int\"},{\"name\":\"deaths\",\"type\":\"int\"},{\"name\":\"hero_damage\",\"type\":\"int\"},{\"name\":\"last_hits\",\"type\":\"int\"},{\"name\":\"player_slot\",\"type\":\"int\"},{\"name\":\"denies\",\"type\":\"int\"},{\"name\":\"ability_upgrades\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"AbilityUpgrade\",\"fields\":[{\"name\":\"level\",\"type\":\"int\"},{\"name\":\"ability_id\",\"type\":\"int\"},{\"name\":\"time\",\"type\":\"int\"}]}}},{\"name\":\"tower_damage\",\"type\":\"int\"},{\"name\":\"hero_id\",\"type\":\"int\"},{\"name\":\"exp_per_minute\",\"type\":\"double\"},{\"name\":\"account_id\",\"type\":\"long\"},{\"name\":\"kills\",\"type\":\"int\"},{\"name\":\"leaver_status\",\"type\":{\"type\":\"enum\",\"name\":\"LeaverStatus\",\"symbols\":[\"BOT\",\"ABANDON\",\"SAFE_ABANDON\",\"STAYED\"]}},{\"name\":\"hero_healing\",\"type\":\"int\"},{\"name\":\"assists\",\"type\":\"int\"},{\"name\":\"gold_per_minute\",\"type\":\"double\"},{\"name\":\"level\",\"type\":\"int\"},{\"name\":\"item_ids\",\"type\":{\"type\":\"array\",\"items\":\"int\"}},{\"name\":\"additional_units\",\"type\":[\"null\",{\"type\":\"record\",\"name\":\"AdditionalUnit\",\"fields\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"item_ids\",\"type\":{\"type\":\"array\",\"items\":\"int\"}}]}]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public int gold_spent;
   @Deprecated public int gold;
@@ -20,7 +20,7 @@ public class Player extends org.apache.avro.specific.SpecificRecordBase implemen
   @Deprecated public int tower_damage;
   @Deprecated public int hero_id;
   @Deprecated public double exp_per_minute;
-  @Deprecated public int account_id;
+  @Deprecated public long account_id;
   @Deprecated public int kills;
   @Deprecated public com.wibi.wibidota.dotaloader.LeaverStatus leaver_status;
   @Deprecated public int hero_healing;
@@ -38,7 +38,7 @@ public class Player extends org.apache.avro.specific.SpecificRecordBase implemen
   /**
    * All-args constructor.
    */
-  public Player(java.lang.Integer gold_spent, java.lang.Integer gold, java.lang.Integer deaths, java.lang.Integer hero_damage, java.lang.Integer last_hits, java.lang.Integer player_slot, java.lang.Integer denies, java.util.List<com.wibi.wibidota.dotaloader.AbilityUpgrade> ability_upgrades, java.lang.Integer tower_damage, java.lang.Integer hero_id, java.lang.Double exp_per_minute, java.lang.Integer account_id, java.lang.Integer kills, com.wibi.wibidota.dotaloader.LeaverStatus leaver_status, java.lang.Integer hero_healing, java.lang.Integer assists, java.lang.Double gold_per_minute, java.lang.Integer level, java.util.List<java.lang.Integer> item_ids, com.wibi.wibidota.dotaloader.AdditionalUnit additional_units) {
+  public Player(java.lang.Integer gold_spent, java.lang.Integer gold, java.lang.Integer deaths, java.lang.Integer hero_damage, java.lang.Integer last_hits, java.lang.Integer player_slot, java.lang.Integer denies, java.util.List<com.wibi.wibidota.dotaloader.AbilityUpgrade> ability_upgrades, java.lang.Integer tower_damage, java.lang.Integer hero_id, java.lang.Double exp_per_minute, java.lang.Long account_id, java.lang.Integer kills, com.wibi.wibidota.dotaloader.LeaverStatus leaver_status, java.lang.Integer hero_healing, java.lang.Integer assists, java.lang.Double gold_per_minute, java.lang.Integer level, java.util.List<java.lang.Integer> item_ids, com.wibi.wibidota.dotaloader.AdditionalUnit additional_units) {
     this.gold_spent = gold_spent;
     this.gold = gold;
     this.deaths = deaths;
@@ -103,7 +103,7 @@ public class Player extends org.apache.avro.specific.SpecificRecordBase implemen
     case 8: tower_damage = (java.lang.Integer)value$; break;
     case 9: hero_id = (java.lang.Integer)value$; break;
     case 10: exp_per_minute = (java.lang.Double)value$; break;
-    case 11: account_id = (java.lang.Integer)value$; break;
+    case 11: account_id = (java.lang.Long)value$; break;
     case 12: kills = (java.lang.Integer)value$; break;
     case 13: leaver_status = (com.wibi.wibidota.dotaloader.LeaverStatus)value$; break;
     case 14: hero_healing = (java.lang.Integer)value$; break;
@@ -284,7 +284,7 @@ public class Player extends org.apache.avro.specific.SpecificRecordBase implemen
   /**
    * Gets the value of the 'account_id' field.
    */
-  public java.lang.Integer getAccountId() {
+  public java.lang.Long getAccountId() {
     return account_id;
   }
 
@@ -292,7 +292,7 @@ public class Player extends org.apache.avro.specific.SpecificRecordBase implemen
    * Sets the value of the 'account_id' field.
    * @param value the value to set.
    */
-  public void setAccountId(java.lang.Integer value) {
+  public void setAccountId(java.lang.Long value) {
     this.account_id = value;
   }
 
@@ -448,7 +448,7 @@ public class Player extends org.apache.avro.specific.SpecificRecordBase implemen
     private int tower_damage;
     private int hero_id;
     private double exp_per_minute;
-    private int account_id;
+    private long account_id;
     private int kills;
     private com.wibi.wibidota.dotaloader.LeaverStatus leaver_status;
     private int hero_healing;
@@ -819,12 +819,12 @@ public class Player extends org.apache.avro.specific.SpecificRecordBase implemen
     }
 
     /** Gets the value of the 'account_id' field */
-    public java.lang.Integer getAccountId() {
+    public java.lang.Long getAccountId() {
       return account_id;
     }
     
     /** Sets the value of the 'account_id' field */
-    public com.wibi.wibidota.dotaloader.Player.Builder setAccountId(int value) {
+    public com.wibi.wibidota.dotaloader.Player.Builder setAccountId(long value) {
       validate(fields()[11], value);
       this.account_id = value;
       fieldSetFlags()[11] = true;
@@ -1052,7 +1052,7 @@ public class Player extends org.apache.avro.specific.SpecificRecordBase implemen
         record.tower_damage = fieldSetFlags()[8] ? this.tower_damage : (java.lang.Integer) defaultValue(fields()[8]);
         record.hero_id = fieldSetFlags()[9] ? this.hero_id : (java.lang.Integer) defaultValue(fields()[9]);
         record.exp_per_minute = fieldSetFlags()[10] ? this.exp_per_minute : (java.lang.Double) defaultValue(fields()[10]);
-        record.account_id = fieldSetFlags()[11] ? this.account_id : (java.lang.Integer) defaultValue(fields()[11]);
+        record.account_id = fieldSetFlags()[11] ? this.account_id : (java.lang.Long) defaultValue(fields()[11]);
         record.kills = fieldSetFlags()[12] ? this.kills : (java.lang.Integer) defaultValue(fields()[12]);
         record.leaver_status = fieldSetFlags()[13] ? this.leaver_status : (com.wibi.wibidota.dotaloader.LeaverStatus) defaultValue(fields()[13]);
         record.hero_healing = fieldSetFlags()[14] ? this.hero_healing : (java.lang.Integer) defaultValue(fields()[14]);
