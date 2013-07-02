@@ -17,12 +17,13 @@
  * limitations under the License.
  */
 
-@namespace("com.wibi.wibidota.dotaloader")
+@namespace("com.wibidata.wibidota.dotaloader")
 /**
  * Avro schemas for sorting stats about dota 2 games.
  */
 protocol DotaStats {
 
+  // GameMode and LobbyType correspond to enums used in the dota_matches table
   enum GameMode {
     ALL_PICK, CAPTAINS_MODE, RANDOM_DRAFT, SINGLE_DRAFT, ALL_RANDOM,
     UNKOWN, THE_DIRETIDE, REVERSE_CAPTAINS_MODE, GREEVILING,
@@ -49,10 +50,6 @@ protocol DotaStats {
     string name;
     array<int> item_ids;
   }
-
-//  record PlayerStats {
-//    array<double> stats         
-//  }
 
   // Stats for a specific player in the game.
   record Player {

@@ -16,14 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wibidota.wibiloader;
+package com.wibidata.wibidota.wibiloader;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.wibi.wibidota.dotaloader.*;
+import com.wibidata.wibidota.dotaloader.*;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.json.simple.JSONObject;
@@ -205,7 +205,7 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       final Players players = Players.newBuilder().setPlayers(playerStats).build();
 
       EntityId eid = context.getEntityId(matchId + "");
-      context.put(eid, "data", "match_id", matchId);
+      context.put(eid, "data", "match_id",  matchId);
       context.put(eid, "data", "dire_towers_status", direTowers);
       context.put(eid, "data", "radiant_towers_status", radiantTowers);
       context.put(eid, "data", "dire_barracks_status", direBarracks);
