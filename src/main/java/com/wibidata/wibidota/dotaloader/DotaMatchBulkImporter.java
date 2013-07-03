@@ -259,6 +259,10 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       }
       return (Map<String, Object>) o;
     }
+
+    public Object readRawObject(String key){
+      return obj.get(key);
+    }
   }
 
   // Reads an AbilityUpgrade object from a Map of its fields
@@ -299,19 +303,24 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
     builder.setAbilityUpgrades(abilityUpgrades);
 
     // Set the additionalUnit
-    Map<String, Object> additionalUnit = reader.readObject("additional_units", true);
-    if(additionalUnit != null){
+    Object raw = reader.readRawObject("additional_units");
+    if(raw == null){
+      builder.setAdditionalUnits(null);
+    }  else {
+      final Map<String, Object> additionalUnit;
+      // This is sometimes contained in a list
+      if(raw instanceof List<?>){
+        additionalUnit = (Map<String, Object>) (((List<?>) raw).get(0));
+      } else {
+        additionalUnit = (Map<String, Object>) raw;
+      }
       final JSONReader unitReader = new JSONReader(additionalUnit);
       builder.setAdditionalUnits(
           AdditionalUnit.newBuilder()
               .setName(reader.readString("unitname"))
               .setItemIds(readItems(reader))
               .build());
-    } else {
-      builder.setAdditionalUnits(null);
     }
-
-    // Set everything else
     return builder
              .setAccountId(reader.readLong("account_id", -1L))
              .setAssists(reader.readInt("assists"))
