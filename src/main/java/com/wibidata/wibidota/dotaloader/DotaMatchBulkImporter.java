@@ -122,10 +122,15 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
     final JSONReader reader = new JSONReader(playerData);
     Player.Builder builder = Player.newBuilder();
 
-    // Set the abilityUpgrades
+    // Set the abilityUpgrades                       /home/chris/kiji/wibidota-loader/lib/json-simple-1.1.jar
     final List<AbilityUpgrade> abilityUpgrades = new ArrayList<AbilityUpgrade>();
-    for(Object o : reader.readArray("ability_upgrades")){
-      abilityUpgrades.add(extractAbility((Map<String, Object>) o));
+
+    final List<Object> uncastAbilities = reader.readArray("ability_upgrades");
+    // This can be null (players have no abilities?)
+    if(uncastAbilities != null){
+      for(Object o : uncastAbilities){
+        abilityUpgrades.add(extractAbility((Map<String, Object>) o));
+      }
     }
     builder.setAbilityUpgrades(abilityUpgrades);
 
@@ -226,6 +231,8 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       // Catch and log any malformed json records.
       // context.incrementCounter(KijiMusicCountears.JSONParseFailure);
       LOG.error("Failed to parse JSON record '{}' {}", line, pe);
+    }  catch (RuntimeException ex){
+      LOG.error("Runtimed Ex {}", ex.toString());
     }
   }
 }

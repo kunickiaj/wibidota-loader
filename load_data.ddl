@@ -1,7 +1,6 @@
-
 MODULE bulkimport;
-LOAD DATA INFILE 'hdfs://shared/dota_matches'
+LOAD DATA INFILE 'hdfs://dota_matches'
 INTO TABLE dota_matches
-THROUGH PATH 'hdfs://shared/dota_tmp'
+THROUGH PATH 'hdfs://dota_tmp'
 USING com.wibidata.wibidota.dotaloader.DotaMatchBulkImporter
 ;
