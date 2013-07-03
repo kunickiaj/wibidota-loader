@@ -22,7 +22,11 @@ WITH LOCALITY GROUP match_data (
           duration "int",
           radiant_wins "boolean",
           positive_votes "int",
-          lobby_type "int",
+          lobby_type {"type" : "enum", "name" : "lobby_type", "symbols" : [ 
+                             "INVALID", "PUBLIC_MATCHMAKING", "PRACTICE", "TOURNAMENT", 
+                             "TUTORIAL", "CO_OP_WITH_BOTS", "TEAM_MATCH"
+                            ]
+                     },
           player_data CLASS com.wibidata.wibidota.avro.Players
   ),
      MAP TYPE FAMILY derived_data "double"

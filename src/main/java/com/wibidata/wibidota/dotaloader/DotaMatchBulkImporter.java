@@ -36,9 +36,13 @@ import org.kiji.mapreduce.KijiTableContext;
 import org.kiji.mapreduce.bulkimport.KijiBulkImporter;
 import org.kiji.schema.EntityId;
 /**
- * Bulk-importer to load the information about the track plays into the KijiMusic Users table.
+ * Bulk-importer to load the information about Dota 2 matches
  *
- * <p>Input files will contain JSON data representing track plays, with one song per line, as in:
+ * <p>Input files will contain JSON data representing a single match. The JSON
+ * is expected to follow the API found at http://dev.dota2.com/showthread.php?t=58317.
+ * with the following exceptions:
+ * - AccountId
+ *
  * <pre>
  * { "user_id" : "0", "play_time" : "1325725200000", "song_id" : "1" }
  * </pre>
@@ -51,8 +55,8 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
   private static final Logger LOG = LoggerFactory.getLogger(DotaMatchBulkImporter.class);
   /** {@inheritDoc} */
 
-  private static final String INFORMATION_LOSS_TAG = "Information lost: ";
-
+  // RunetimeException to use if JSONReader does not read what it expects from
+  // a JSONObject
   private static class BadReadException extends RuntimeException {
     public BadReadException(){
       super();
@@ -330,21 +334,18 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
   public void produce(LongWritable filePos, Text line, KijiTableContext context)
       throws IOException {
 
-    final JSONParser parser = new JSONParser();
+    final JSONReader reader;
     try {
-      // Parse JSON:
-      final JSONReader reader = new JSONReader((JSONObject) parser.parse(line.toString()));
-
-      // TODO: maybe more robust to use a swtich statement?
-      // The ENUM ordering and value align so we can use an offset
-//      final GameMode gameMode = GameMode.values()[reader.readInt("game_mode") - 1];
-
-      // Again an offset works, watch this if the API changes
-//      final LobbyType lobbyType = LobbyType.values()[reader.readInt("lobby_type")];
+      final JSONParser parser = new JSONParser();
+      reader = new JSONReader((JSONObject) parser.parse(line.toString()));
+    } catch (ParseException pe){
+      LOG.error("Failed to parse JSON record '{}' {}", line, pe);
+      return;
+    }
+    try {
 
       final int gameMode = reader.readInt("game_mode");
       final int lobbyType = reader.readInt("lobby_type");
-
       final long matchId = reader.readLong("match_id");
       final int direTowers = reader.readInt("tower_status_dire");
       final int radiantTowers = reader.readInt("tower_status_radiant");
@@ -367,6 +368,10 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       }
       final Players players = Players.newBuilder().setPlayers(playerStats).build();
 
+      if(lobbyType < -1 || lobbyType > 5){
+        throw new RuntimeException("BAD LOBBY TYPE");
+      }
+
       EntityId eid = context.getEntityId(matchId + "");
       context.put(eid, "data", "match_id",  startTime, matchId);
       context.put(eid, "data", "dire_towers_status", startTime, direTowers);
@@ -385,11 +390,18 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       context.put(eid, "data", "radiant_wins", startTime, radiantWin);
       context.put(eid, "data", "player_data", startTime, players);
       context.put(eid, "data", "game_mode", startTime, gameMode);
-      context.put(eid, "data", "lobby_type", startTime, lobbyType);
-    } catch (ParseException pe) {
-      // Catch and log any malformed json records.
-      // context.incrementCounter(KijiMusicCountears.JSONParseFailure);
-      LOG.error("Failed to parse JSON record '{}' {}", line, pe);
+      context.put(eid, "data", "lobby_type", startTime, LobbyType.values()[lobbyType].toString());
+
+    } catch (RuntimeException re){
+      Long matchId;
+      try {
+        matchId = reader.readLong("match_id");
+      } catch (RuntimeException ex){
+        matchId = null;
+      }
+      LOG.error("Runtime Exception!!" + (matchId == null ? " unknown match id " : " match id=" + matchId + " ")
+        + "\nLine\n" + line.toString() + "\nMessage:\n" + re.toString() + "\nTrace:\n" + re.fillInStackTrace());
+      throw re;
     }
   }
 }
