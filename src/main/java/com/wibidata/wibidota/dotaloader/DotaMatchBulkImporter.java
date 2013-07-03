@@ -121,7 +121,7 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
     public Integer readInt(String key){
       Object o = obj.get(key);
       checkNull(key, o);
-      return validateInt(key, o);
+      return validateInt(key, o, true);
 
 
     }
@@ -130,14 +130,16 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       if(o == null){
         return def;
       }
-      return validateInt(key, o);
+      return validateInt(key, o, true);
     }
 
-    private Integer validateInt(String key, Object o){
+    private Integer validateInt(String key, Object o, boolean ignoreMax){
       Number n = (Number) o;
       int out = n.intValue();
       if(n.longValue() != out) {
-        throw new BadReadException(genInfoLossMsg(key, out, n.longValue()));
+        if(!(ignoreMax && n.longValue() == 4294967295L)){
+          throw new BadReadException(genInfoLossMsg(key, out, n.longValue()));
+        }
       };
       if(n.doubleValue()%1.0 != 0.0) {
         throw new BadReadException(genInfoLossMsg(key, out, n.doubleValue()));
@@ -335,10 +337,13 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
 
       // TODO: maybe more robust to use a swtich statement?
       // The ENUM ordering and value align so we can use an offset
-      final GameMode gameMode = GameMode.values()[reader.readInt("game_mode") - 1];
+//      final GameMode gameMode = GameMode.values()[reader.readInt("game_mode") - 1];
 
       // Again an offset works, watch this if the API changes
-      final LobbyType lobbyType = LobbyType.values()[reader.readInt("lobby_type")];
+//      final LobbyType lobbyType = LobbyType.values()[reader.readInt("lobby_type")];
+
+      final int gameMode = reader.readInt("game_mode");
+      final int lobbyType = reader.readInt("lobby_type");
 
       final long matchId = reader.readLong("match_id");
       final int direTowers = reader.readInt("tower_status_dire");
@@ -379,6 +384,8 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       context.put(eid, "data", "duration", startTime, duration);
       context.put(eid, "data", "radiant_wins", startTime, radiantWin);
       context.put(eid, "data", "player_data", startTime, players);
+      context.put(eid, "data", "game_mode", startTime, gameMode);
+      context.put(eid, "data", "lobby_type", startTime, lobbyType);
     } catch (ParseException pe) {
       // Catch and log any malformed json records.
       // context.incrementCounter(KijiMusicCountears.JSONParseFailure);

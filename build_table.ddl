@@ -14,7 +14,7 @@ WITH LOCALITY GROUP match_data (
           cluster "int",
           season "int",
           start_time "long",
-          game_mode CLASS com.wibidata.wibidota.avro.GameMode,
+          game_mode "int",
           match_seq_num "int",
           league_id "int",
           first_blood_time "int",
@@ -22,7 +22,7 @@ WITH LOCALITY GROUP match_data (
           duration "int",
           radiant_wins "boolean",
           positive_votes "int",
-          lobby_time "int",
+          lobby_type "int",
           player_data CLASS com.wibidata.wibidota.avro.Players
   ),
      MAP TYPE FAMILY derived_data "double"
