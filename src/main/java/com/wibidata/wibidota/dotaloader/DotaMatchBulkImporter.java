@@ -51,6 +51,20 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
   private static final Logger LOG = LoggerFactory.getLogger(DotaMatchBulkImporter.class);
   /** {@inheritDoc} */
 
+  private static final String INFORMATION_LOSS_TAG = "Information lost: ";
+
+  private static class BadReadException extends RuntimeException {
+    public BadReadException(){
+      super();
+    }
+    public BadReadException(String msg){
+      super(msg);
+    }
+    public BadReadException(Exception ex){
+      super(ex);
+    }
+  }
+
   // Convenience class to read typed data from a String-Object map in a typed
   // way. Assumes caller knows the correct type for each key
   private static class JSONReader {
@@ -61,39 +75,178 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       this.obj = obj;
     }
 
-    public int readInt(String key){
-      Number n = (Number) obj.get(key);
+    private static String genInfoLossMsg(String key, Object valueUsed, Object realValue){
+      return String.format("For key %s information was lost (using %s but key was %s)",
+            key, valueUsed.toString(), realValue.toString());
+    }
+
+    private static void checkNull(String key, Object o){
+      if(o == null){
+        throw new BadReadException(key + " was null when it was not supposed to be!");
+      }
+    }
+
+    public static BadReadException nullRead(String key){
+      return new BadReadException(key + " was null when it was not supposed to be!");
+    }
+
+    /*
+    public <T> T read(String key){
+      Object o = obj.get(key);
+      if(o == null){
+        throw new BadReadException(key + " was null when it was not supposed to be!");
+      }
+      return validateObject(key, o);
+    }
+
+    public <T> T read(String key, T def){
+      Object o = obj.get(key);
+      if(o == null){
+        return def;
+      }
+      return validateObject(key, o);
+    }
+
+    public <T> T validateObject(String key, Object o){
+      try {
+        switch T.
+
+        }
+        return (T) o;
+      } catch (ClassCastException ex){
+        return new BadReadException("Bad ")
+      }
+    }             */
+
+    public Integer readInt(String key){
+      Object o = obj.get(key);
+      checkNull(key, o);
+      return validateInt(key, o);
+
+
+    }
+    public Integer readInt(String key, Integer def){
+      Object o = obj.get(key);
+      if(o == null){
+        return def;
+      }
+      return validateInt(key, o);
+    }
+
+    private Integer validateInt(String key, Object o){
+      Number n = (Number) o;
       int out = n.intValue();
-      assert(n.longValue() == out);
-      assert(n.doubleValue()%1.0 == 0.0);
+      if(n.longValue() != out) {
+        throw new BadReadException(genInfoLossMsg(key, out, n.longValue()));
+      };
+      if(n.doubleValue()%1.0 != 0.0) {
+        throw new BadReadException(genInfoLossMsg(key, out, n.doubleValue()));
+      };
       return out;
     }
 
-    public boolean readBool(String key){
-      return (Boolean) obj.get(key);
+    public Boolean readBool(String key){
+      return readBool(key, false);
     }
 
-    public long readLong(String key){
-      Number n = (Number) obj.get(key);
+    public Boolean readBool(String key, boolean allowNull){
+      Object o = obj.get(key);
+      if(o == null){
+        if(allowNull){
+          return null;
+        } else {
+          throw nullRead(key);
+        }
+      }
+      return (Boolean) o;
+    }
+
+    public Long readLong(String key){
+      Object o = obj.get(key);
+      checkNull(key, o);
+      return validateLong(key, o);
+
+
+    }
+    public Long readLong(String key, Long def){
+      Object o = obj.get(key);
+      if(o == null){
+        return def;
+      }
+      return validateLong(key, o);
+    }
+
+    public Long validateLong(String key, Object o){
+      Number n = (Number) 0;
       long out = n.longValue();
-      assert(n.doubleValue()%1.0 == 0.0);
+      if(n.doubleValue()%1.0 != 0.0){
+        throw new BadReadException(genInfoLossMsg(key, out, n.doubleValue()));
+      }
       return out;
     }
 
-    public double readDouble(String key){
-      return (((Number) obj.get(key)).doubleValue());
+    public Double readDouble(String key){
+      return readDouble(key, false);
+    }
+
+    public Double readDouble(String key, boolean allowNull){
+      Object o = obj.get(key);
+      if(o == null){
+        if(allowNull){
+          return null;
+        } else {
+          throw nullRead(key);
+        }
+      }
+      return (((Number) o).doubleValue());
     }
 
     public List<Object> readArray(String key){
-      return (List<Object>) obj.get(key);
+      return readArray(key, false);
+    }
+
+    public List<Object> readArray(String key, boolean allowNull){
+      Object o = obj.get(key);
+      if(o == null){
+        if(allowNull){
+          return null;
+        } else {
+          throw nullRead(key);
+        }
+      }
+      return (List<Object>) o;
     }
 
     public String readString(String key){
-      return (String) obj.get(key);
+      return readString(key, false);
+    }
+
+    public String readString(String key, boolean allowNull){
+      Object o = obj.get(key);
+      if(o == null){
+        if(allowNull){
+          return null;
+        } else {
+          throw nullRead(key);
+        }
+      }
+      return (String) o;
     }
 
     public Map<String, Object> readObject(String key){
-      return (Map<String, Object>) obj.get(key);
+      return readObject(key, false);
+    }
+
+    public Map<String, Object> readObject(String key, boolean allowNull){
+      Object o = obj.get(key);
+      if(o == null){
+        if(allowNull){
+          return null;
+        } else {
+          throw nullRead(key);
+        }
+      }
+      return (Map<String, Object>) o;
     }
   }
 
@@ -125,7 +278,7 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
     // Set the abilityUpgrades                       /home/chris/kiji/wibidota-loader/lib/json-simple-1.1.jar
     final List<AbilityUpgrade> abilityUpgrades = new ArrayList<AbilityUpgrade>();
 
-    final List<Object> uncastAbilities = reader.readArray("ability_upgrades");
+    final List<Object> uncastAbilities = reader.readArray("ability_upgrades", true);
     // This can be null (players have no abilities?)
     if(uncastAbilities != null){
       for(Object o : uncastAbilities){
@@ -135,7 +288,7 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
     builder.setAbilityUpgrades(abilityUpgrades);
 
     // Set the additionalUnit
-    Map<String, Object> additionalUnit = reader.readObject("additional_units");
+    Map<String, Object> additionalUnit = reader.readObject("additional_units", true);
     if(additionalUnit != null){
       final JSONReader unitReader = new JSONReader(additionalUnit);
       builder.setAdditionalUnits(
@@ -149,14 +302,14 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
 
     // Set everything else
     return builder
-             .setAccountId(reader.readLong("account_id"))
+             .setAccountId(reader.readLong("account_id", -1L))
              .setAssists(reader.readInt("assists"))
              .setDeaths(reader.readInt("deaths"))
              .setDenies(reader.readInt("denies"))
              .setExpPerMinute(reader.readInt("xp_per_min"))
              .setHeroId(reader.readInt("hero_id"))
              .setLastHits(reader.readInt("last_hits"))
-             .setLeaverStatus(LeaverStatus.values()[reader.readInt("leaver_status")])
+             .setLeaverStatus(reader.readInt("leaver_status", -1))
              .setLevel(reader.readInt("level"))
              .setPlayerSlot(reader.readInt("player_slot"))
              .setTowerDamage(reader.readInt("tower_damage"))
@@ -182,7 +335,7 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
 
       // TODO: maybe more robust to use a swtich statement?
       // The ENUM ordering and value align so we can use an offset
-      final GameMode gameMode = GameMode.values()[reader.readInt("game_mode") + 1];
+      final GameMode gameMode = GameMode.values()[reader.readInt("game_mode") - 1];
 
       // Again an offset works, watch this if the API changes
       final LobbyType lobbyType = LobbyType.values()[reader.readInt("lobby_type")];
@@ -231,8 +384,6 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       // Catch and log any malformed json records.
       // context.incrementCounter(KijiMusicCountears.JSONParseFailure);
       LOG.error("Failed to parse JSON record '{}' {}", line, pe);
-    }  catch (RuntimeException ex){
-      LOG.error("Runtimed Ex {}", ex.toString());
     }
   }
 }

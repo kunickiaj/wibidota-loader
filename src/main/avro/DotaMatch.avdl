@@ -36,7 +36,7 @@ protocol DotaStats {
   }
   
   enum LeaverStatus {
-    BOT, ABANDON, SAFE_ABANDON, STAYED
+    STAYED, SAFE_ABANDON, ABANDON, BOT
   }
 
   // Records when a player leveled up an ability.
@@ -66,7 +66,8 @@ protocol DotaStats {
     double exp_per_minute;
     long account_id;
     int kills;
-    LeaverStatus leaver_status;
+//    LeaverStatus leaver_status;
+    int leaverStatus;
     int hero_healing;
     int assists;
     double gold_per_minute;

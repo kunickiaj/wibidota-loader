@@ -3,7 +3,7 @@ arg=$1
 if [ -z "$1" ]
   then
     echo "********** RECOMPILING **********"
-    sudo mvn clean package
+    sudo mvn package
 fi
 echo "********** DELETING TMP FILE  **********"
 hadoop fs -rm -r hdfs://localhost:8020/tmp/dota_tmp
