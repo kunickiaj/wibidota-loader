@@ -317,8 +317,8 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       final JSONReader unitReader = new JSONReader(additionalUnit);
       builder.setAdditionalUnits(
           AdditionalUnit.newBuilder()
-              .setName(reader.readString("unitname"))
-              .setItemIds(readItems(reader))
+              .setName(unitReader.readString("unitname"))
+              .setItemIds(readItems(unitReader))
               .build());
     }
     return builder
