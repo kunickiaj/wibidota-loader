@@ -48,6 +48,27 @@
           <overWriteSnapshots>false</overWriteSnapshots>
           <overWriteIfNewer>true</overWriteIfNewer>
         </configuration>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.googlecode.json-simple</groupId>
+                  <artifactId>json-simple</artifactId>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${basedir}/lib</outputDirectory>
+              <overWriteReleases>false</overWriteReleases>
+              <overWriteSnapshots>false</overWriteSnapshots>
+              <overWriteIfNewer>true</overWriteIfNewer>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
