@@ -363,23 +363,22 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       final Players players = Players.newBuilder().setPlayers(playerStats).build();
 
       EntityId eid = context.getEntityId(matchId + "");
-      context.put(eid, "data", "match_id",  matchId);
-      context.put(eid, "data", "dire_towers_status", direTowers);
-      context.put(eid, "data", "radiant_towers_status", radiantTowers);
-      context.put(eid, "data", "dire_barracks_status", direBarracks);
-      context.put(eid, "data", "radiant_barracks_status", radiantBarracks);
-      context.put(eid, "data", "cluster", cluster);
-      context.put(eid, "data", "season", season);
-      context.put(eid, "data", "start_time", startTime);
-      context.put(eid, "data", "match_seq_num", seqNum);
-      context.put(eid, "data", "league_id", leagueId);
-      context.put(eid, "data", "first_blood_time", firstBloodTime);
-      context.put(eid, "data", "negative_votes", negativeVotes);
-      context.put(eid, "data", "positive_votes", positiveVotes);
-      context.put(eid, "data", "duration", duration);
-      context.put(eid, "data", "radiant_wins", radiantWin);
-      context.put(eid, "data", "player_data", players);
-
+      context.put(eid, "data", "match_id",  startTime, matchId);
+      context.put(eid, "data", "dire_towers_status", startTime, direTowers);
+      context.put(eid, "data", "radiant_towers_status", startTime, radiantTowers);
+      context.put(eid, "data", "dire_barracks_status", startTime, direBarracks);
+      context.put(eid, "data", "radiant_barracks_status", startTime, radiantBarracks);
+      context.put(eid, "data", "cluster", startTime, cluster);
+      context.put(eid, "data", "season", startTime, season);
+      context.put(eid, "data", "start_time", startTime, startTime);
+      context.put(eid, "data", "match_seq_num", startTime, seqNum);
+      context.put(eid, "data", "league_id", startTime, leagueId);
+      context.put(eid, "data", "first_blood_time", startTime, firstBloodTime);
+      context.put(eid, "data", "negative_votes", startTime, negativeVotes);
+      context.put(eid, "data", "positive_votes", startTime, positiveVotes);
+      context.put(eid, "data", "duration", startTime, duration);
+      context.put(eid, "data", "radiant_wins", startTime, radiantWin);
+      context.put(eid, "data", "player_data", startTime, players);
     } catch (ParseException pe) {
       // Catch and log any malformed json records.
       // context.incrementCounter(KijiMusicCountears.JSONParseFailure);
