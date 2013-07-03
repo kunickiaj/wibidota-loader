@@ -323,7 +323,6 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
               .setItemIds(readItems(unitReader))
               .build());
     }
-    System.out.println("\ns********** PLAYER  " + reader.readLong("account_id", -1L) + "******************\n");
     return builder
              .setAccountId(reader.readLong("account_id", -1L))
              .setAssists(reader.readInt("assists"))
