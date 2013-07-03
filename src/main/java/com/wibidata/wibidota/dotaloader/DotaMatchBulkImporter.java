@@ -69,6 +69,11 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
     }
   }
 
+
+  private static String safeToString(Object o){
+    return (o == null ? "null" : o.toString());
+  }
+
   // Convenience class to read typed data from a String-Object map in a typed
   // way. Assumes caller knows the correct type for each key
   private static class JSONReader {
@@ -343,7 +348,6 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       return;
     }
     try {
-
       final int gameMode = reader.readInt("game_mode");
       final int lobbyType = reader.readInt("lobby_type");
       final long matchId = reader.readLong("match_id");
@@ -393,14 +397,17 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       context.put(eid, "data", "lobby_type", startTime, LobbyType.values()[lobbyType].toString());
 
     } catch (RuntimeException re){
-      Long matchId;
+      Long matchId = null;
       try {
-        matchId = reader.readLong("match_id");
+        matchId = reader.readLong("match_id", null);
       } catch (RuntimeException ex){
-        matchId = null;
       }
-      LOG.error("Runtime Exception!!" + (matchId == null ? " unknown match id " : " match id=" + matchId + " ")
-        + "\nLine\n" + line.toString() + "\nMessage:\n" + re.toString() + "\nTrace:\n" + re.fillInStackTrace());
+      try {
+      LOG.error("Runtime Exception!!" + safeToString(matchId)
+          + "\nLine\n" + safeToString(line) + "\nMessage:\n" + safeToString(re));
+      } catch (RuntimeException ex) {
+        LOG.error("Error loggging an error: " + ex.getMessage());
+      }
       throw re;
     }
   }
