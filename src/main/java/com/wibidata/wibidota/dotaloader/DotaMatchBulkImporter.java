@@ -146,8 +146,10 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       Number n = (Number) o;
       int out = n.intValue();
       if(n.longValue() != out) {
-        if(!(ignoreMax && n.longValue() == 4294967295L)){
+        if(!ignoreMax){
           throw new BadReadException(genInfoLossMsg(key, out, n.longValue()));
+        } else {
+          out = Integer.MAX_VALUE;
         }
       };
       if(n.doubleValue()%1.0 != 0.0) {
@@ -321,6 +323,7 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
               .setItemIds(readItems(unitReader))
               .build());
     }
+    System.out.println("\ns********** PLAYER  " + reader.readLong("account_id", -1L) + "******************\n");
     return builder
              .setAccountId(reader.readLong("account_id", -1L))
              .setAssists(reader.readInt("assists"))
