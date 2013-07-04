@@ -118,7 +118,6 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
     }
 
     private Integer validateInt(String key, Object o, boolean ignoreMax){
-      ignoreMax = false;
       Number n = (Number) o;
       int out = n.intValue();
       if(n.longValue() != out) {
@@ -368,9 +367,9 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       if(lobbyType < -1 || lobbyType > 5){
         throw new RuntimeException("BAD LOBBY TYPE");
       }
-      if(gameMode < 1 || gameMode > 13){
-        throw new RuntimeException("BAD GAME MODE EXCEPTION");
-      }
+//      if(gameMode < 1 || gameMode > 13){
+//        throw new RuntimeException("BAD GAME MODE EXCEPTION " + gameMode);
+//      }
 
       String key = "" + matchId;
       EntityId eid = context.getEntityId(key);
@@ -404,7 +403,7 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       context.put(eid, "data", "duration", startTime, duration);
       context.put(eid, "data", "radiant_wins", startTime, radiantWin);
       context.put(eid, "data", "player_data", startTime, players);
-      context.put(eid, "data", "game_mode", startTime, GameMode.values()[gameMode - 1].toString());
+      context.put(eid, "data", "game_mode", startTime, GameMode.values()[gameMode].toString());
       context.put(eid, "data", "lobby_type", startTime, LobbyType.values()[lobbyType].toString());
     } catch (RuntimeException re){
       // For RunetimeExceptions we try to log the error for debugging purposes
