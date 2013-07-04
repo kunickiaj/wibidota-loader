@@ -15,8 +15,9 @@ WITH LOCALITY GROUP match_data (
           season "int",
           start_time "long",
           game_mode {"type" : "enum", "name" : "game_mode", "symbols" : [
+                            "UNKNOWN_ZERO",
                             "ALL_PICK", "CAPTAINS_MODE", "RANDOM_DRAFT", 
-                            "SINGLE_DRAFT", "ALL_RANDOM", "UNKOWN", "THE_DIRETIDE", 
+                            "SINGLE_DRAFT", "ALL_RANDOM", "UNKOWN_SIX", "THE_DIRETIDE", 
                             "REVERSE_CAPTAINS_MODE", "GREEVILING", "TUTORIAL", 
                             "MID_ONLY", "LEAST_PLAYED", "NEW_PLAYER_POOL"
                             ]
