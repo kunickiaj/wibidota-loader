@@ -14,8 +14,14 @@ WITH LOCALITY GROUP match_data (
           cluster "int",
           season "int",
           start_time "long",
-          game_mode "int",
-          match_seq_num "int",
+          game_mode {"type" : "enum", "name" : "game_mode", "symbols" : [
+                            "ALL_PICK", "CAPTAINS_MODE", "RANDOM_DRAFT", 
+                            "SINGLE_DRAFT", "ALL_RANDOM", "UNKOWN", "THE_DIRETIDE", 
+                            "REVERSE_CAPTAINS_MODE", "GREEVILING", "TUTORIAL", 
+                            "MID_ONLY", "LEAST_PLAYED", "NEW_PLAYER_POOL"
+                            ]
+                     },
+          match_seq_num "long",
           league_id "int",
           first_blood_time "int",
           negative_votes "int",
@@ -29,5 +35,5 @@ WITH LOCALITY GROUP match_data (
                      },
           player_data CLASS com.wibidata.wibidota.avro.Players
   ),
-     MAP TYPE FAMILY derived_data "double"
+  MAP TYPE FAMILY derived_data "double"
 );

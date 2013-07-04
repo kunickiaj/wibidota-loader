@@ -19,9 +19,7 @@
 package com.wibidata.wibidota.dotaloader;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.wibidata.wibidota.dotaloader.*;
 import org.apache.hadoop.io.LongWritable;
@@ -69,13 +67,19 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
     }
   }
 
+  // Will we try to enforce that keys are unique?
+  private static final boolean CHECK_UNIQUE_IDS = true;
 
+  // If so keep them in a set
+  private static final Set<String> MATCH_IDS= (CHECK_UNIQUE_IDS ? new HashSet<String>() : null);
+
+  // Utility method for converting a potentially null Object to a String
   private static String safeToString(Object o){
     return (o == null ? "null" : o.toString());
   }
 
   // Convenience class to read typed data from a String-Object map in a typed
-  // way. Assumes caller knows the correct type for each key
+  // way. Assumes caller knows the correct type for each key.
   private static class JSONReader {
 
     Map<String, Object> obj;
@@ -99,41 +103,12 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       return new BadReadException(key + " was null when it was not supposed to be!");
     }
 
-    /*
-    public <T> T read(String key){
-      Object o = obj.get(key);
-      if(o == null){
-        throw new BadReadException(key + " was null when it was not supposed to be!");
-      }
-      return validateObject(key, o);
-    }
-
-    public <T> T read(String key, T def){
-      Object o = obj.get(key);
-      if(o == null){
-        return def;
-      }
-      return validateObject(key, o);
-    }
-
-    public <T> T validateObject(String key, Object o){
-      try {
-        switch T.
-
-        }
-        return (T) o;
-      } catch (ClassCastException ex){
-        return new BadReadException("Bad ")
-      }
-    }             */
-
     public Integer readInt(String key){
       Object o = obj.get(key);
       checkNull(key, o);
       return validateInt(key, o, true);
-
-
     }
+
     public Integer readInt(String key, Integer def){
       Object o = obj.get(key);
       if(o == null){
@@ -143,6 +118,7 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
     }
 
     private Integer validateInt(String key, Object o, boolean ignoreMax){
+      ignoreMax = false;
       Number n = (Number) o;
       int out = n.intValue();
       if(n.longValue() != out) {
@@ -151,10 +127,10 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
         } else {
           out = Integer.MAX_VALUE;
         }
-      };
+      }
       if(n.doubleValue()%1.0 != 0.0) {
         throw new BadReadException(genInfoLossMsg(key, out, n.doubleValue()));
-      };
+      }
       return out;
     }
 
@@ -190,7 +166,7 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
     }
 
     public Long validateLong(String key, Object o){
-      Number n = (Number) 0;
+      Number n = (Number) o;
       long out = n.longValue();
       if(n.doubleValue()%1.0 != 0.0){
         throw new BadReadException(genInfoLossMsg(key, out, n.doubleValue()));
@@ -289,14 +265,15 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
 
   // Reads a Player Object from a map of its fields->values
   private Player extractPlayer(Map<String, Object> playerData){
+
     final JSONReader reader = new JSONReader(playerData);
     Player.Builder builder = Player.newBuilder();
 
-    // Set the abilityUpgrades                       /home/chris/kiji/wibidota-loader/lib/json-simple-1.1.jar
+    // Set the abilityUpgrades
     final List<AbilityUpgrade> abilityUpgrades = new ArrayList<AbilityUpgrade>();
 
     final List<Object> uncastAbilities = reader.readArray("ability_upgrades", true);
-    // This can be null (players have no abilities?)
+    // This can be null (players have no abilities selected yet?) use a 0 length list
     if(uncastAbilities != null){
       for(Object o : uncastAbilities){
         abilityUpgrades.add(extractAbility((Map<String, Object>) o));
@@ -350,6 +327,7 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
   public void produce(LongWritable filePos, Text line, KijiTableContext context)
       throws IOException {
 
+    // Parse the JSON and wrap a JSONReader over it
     final JSONReader reader;
     try {
       final JSONParser parser = new JSONParser();
@@ -358,7 +336,9 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       LOG.error("Failed to parse JSON record '{}' {}", line, pe);
       return;
     }
+
     try {
+      // Collect the values we need
       final int gameMode = reader.readInt("game_mode");
       final int lobbyType = reader.readInt("lobby_type");
       final long matchId = reader.readLong("match_id");
@@ -369,7 +349,7 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       final int cluster = reader.readInt("cluster");
       final int season = reader.readInt("season");
       final long startTime = reader.readLong("start_time");
-      final int seqNum = reader.readInt("match_seq_num");
+      final long seqNum = reader.readLong("match_seq_num");
       final int leagueId = reader.readInt("leagueid");
       final int firstBloodTime = reader.readInt("first_blood_time");
       final int negativeVotes = reader.readInt("negative_votes");
@@ -377,18 +357,38 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       final int duration = reader.readInt("duration");
       final boolean radiantWin = reader.readBool("radiant_win");
 
+      // Build and parse the player stats
       final List<Player> playerStats = new ArrayList<Player>(10);
       for(Object o : reader.readArray("players")){
         playerStats.add(extractPlayer((Map<String, Object>) o));
       }
       final Players players = Players.newBuilder().setPlayers(playerStats).build();
 
+      // More informative error messages if the modes are out of bounds
       if(lobbyType < -1 || lobbyType > 5){
         throw new RuntimeException("BAD LOBBY TYPE");
       }
+      if(gameMode < 1 || gameMode > 13){
+        throw new RuntimeException("BAD GAME MODE EXCEPTION");
+      }
 
-      EntityId eid = context.getEntityId(matchId + "");
-      context.put(eid, "data", "match_id",  startTime, matchId);
+      String key = "" + matchId;
+      EntityId eid = context.getEntityId(key);
+
+      // If we are checking IDs make sure this ID is new (locally at least)
+      if(MATCH_IDS != null){
+        if(MATCH_IDS.contains(key)){
+          LOG.error("DUP MATCH ID");
+          LOG.error(eid.toShellString());
+          LOG.error(eid.toString());
+          LOG.error(line.toString());
+          throw new RuntimeException();
+        }
+        MATCH_IDS.add(key);
+      }
+
+      // Produce all our data
+      context.put(eid, "data", "match_id", startTime, matchId);
       context.put(eid, "data", "dire_towers_status", startTime, direTowers);
       context.put(eid, "data", "radiant_towers_status", startTime, radiantTowers);
       context.put(eid, "data", "dire_barracks_status", startTime, direBarracks);
@@ -404,20 +404,20 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       context.put(eid, "data", "duration", startTime, duration);
       context.put(eid, "data", "radiant_wins", startTime, radiantWin);
       context.put(eid, "data", "player_data", startTime, players);
-      context.put(eid, "data", "game_mode", startTime, gameMode);
+      context.put(eid, "data", "game_mode", startTime, GameMode.values()[gameMode - 1].toString());
       context.put(eid, "data", "lobby_type", startTime, LobbyType.values()[lobbyType].toString());
-
     } catch (RuntimeException re){
+      // For RunetimeExceptions we try to log the error for debugging purposes
       Long matchId = null;
       try {
         matchId = reader.readLong("match_id", null);
       } catch (RuntimeException ex){
       }
       try {
-      LOG.error("Runtime Exception!!" + safeToString(matchId)
+      LOG.error("Runtime Exception! MatchId=" + safeToString(matchId)
           + "\nLine\n" + safeToString(line) + "\nMessage:\n" + safeToString(re));
       } catch (RuntimeException ex) {
-        LOG.error("Error loggging an error: " + ex.getMessage());
+        LOG.debug("Error loggging an error: " + ex.getMessage());
       }
       throw re;
     }
