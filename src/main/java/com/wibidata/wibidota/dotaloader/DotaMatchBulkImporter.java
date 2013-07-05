@@ -71,17 +71,6 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
     }
   }
 
-  // Will we try to enforce that keys are unique?
-  private static final boolean CHECK_UNIQUE_IDS = true;
-
-  // If so keep them in a set
-  private static final Set<String> MATCH_IDS= (CHECK_UNIQUE_IDS ? new HashSet<String>() : null);
-
-  // Utility method for converting a potentially null Object to a String
-  private static String safeToString(Object o){
-    return (o == null ? "null" : o.toString());
-  }
-
   // Convenience class to read typed data from a String-Object map in a typed
   // way. Assumes caller knows the correct type for each key.
   private static class JSONReader {
@@ -370,26 +359,13 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
 
       // More informative error messages if the modes are out of bounds
       if(lobbyType < -1 || lobbyType > 5){
-        throw new RuntimeException("BAD LOBBY TYPE");
+        throw new RuntimeException("Bad lobby type int: " + lobbyType);
       }
       if(gameMode < 0 || gameMode > 13){
-        throw new RuntimeException("BAD GAME MODE EXCEPTION " + gameMode);
+        throw new RuntimeException("Bad game mode int: " + gameMode);
       }
 
-      String key = "" + matchId;
-      EntityId eid = context.getEntityId(key);
-
-      // If we are checking IDs make sure this ID is new (locally at least)
-      if(MATCH_IDS != null){
-        if(MATCH_IDS.contains(key)){
-          LOG.error("DUP MATCH ID");
-          LOG.error(eid.toShellString());
-          LOG.error(eid.toString());
-          LOG.error(line.toString());
-          throw new RuntimeException();
-        }
-        MATCH_IDS.add(key);
-      }
+      EntityId eid = context.getEntityId(matchId + "");
 
       // Produce all our data
       context.put(eid, "data", "match_id", startTime, matchId);
@@ -412,17 +388,8 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       context.put(eid, "data", "lobby_type", startTime, LobbyType.values()[lobbyType].toString());
     } catch (RuntimeException re){
       // For RunetimeExceptions we try to log the error for debugging purposes
-      Long matchId = null;
-      try {
-        matchId = reader.readLong("match_id", null);
-      } catch (RuntimeException ex){
-      }
-      try {
-      LOG.error("Runtime Exception! MatchId=" + safeToString(matchId)
-          + "\nLine\n" + safeToString(line) + "\nMessage:\n" + safeToString(re));
-      } catch (RuntimeException ex) {
-        LOG.debug("Error loggging an error: " + ex.getMessage());
-      }
+      LOG.error("Runtime Exception! "
+          + "\nLine\n" + line + "\nMessage:\n" + re.toString());
       throw re;
     }
   }
