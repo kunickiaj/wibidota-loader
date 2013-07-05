@@ -1,0 +1,1 @@
+hadoop jar lib/wibidota-loader-1.0.0.jar com.wibidata.wibidota.dotaloader.DotaScan -libjars=/home/chris/kiji/wibidota-loader/lib/gson-2.2.2.jar hdf//localhost:8020/dota-matches/ hdfs://localhost:8020/dota-stats/leaver_status

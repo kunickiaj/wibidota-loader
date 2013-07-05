@@ -36,10 +36,14 @@ import org.kiji.schema.EntityId;
 /**
  * Bulk-importer to load the information about Dota 2 matches
  *
- * <p>Input files will contain JSON data representing a single match. The JSON
+ * <p>Input files should contain JSON data representing a single match. The JSON
  * is expected to follow the API found at http://dev.dota2.com/showthread.php?t=58317.
  * with the following exceptions:
- * - AccountId
+ * - account_id can be null (will be set to -1)
+ * - additional_unit may be wrapped in an array of length one
+ * - game_mode maybe zero (will be set to UNKOWN_ZERO)
+ *
+ *
  *
  * <pre>
  * { "user_id" : "0", "play_time" : "1325725200000", "song_id" : "1" }
@@ -331,6 +335,7 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
     try {
       final JSONParser parser = new JSONParser();
       reader = new JSONReader((JSONObject) parser.parse(line.toString()));
+
     } catch (ParseException pe){
       LOG.error("Failed to parse JSON record '{}' {}", line, pe);
       return;
@@ -367,9 +372,9 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       if(lobbyType < -1 || lobbyType > 5){
         throw new RuntimeException("BAD LOBBY TYPE");
       }
-//      if(gameMode < 1 || gameMode > 13){
-//        throw new RuntimeException("BAD GAME MODE EXCEPTION " + gameMode);
-//      }
+      if(gameMode < 0 || gameMode > 13){
+        throw new RuntimeException("BAD GAME MODE EXCEPTION " + gameMode);
+      }
 
       String key = "" + matchId;
       EntityId eid = context.getEntityId(key);
