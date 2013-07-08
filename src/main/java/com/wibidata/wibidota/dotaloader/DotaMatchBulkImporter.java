@@ -293,14 +293,14 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
               .build());
     }
     return builder
-             .setAccountId(reader.readLong("account_id", -1L))
+//             .setAccountId(reader.readLong("account_id", -1L))
              .setAssists(reader.readInt("assists"))
              .setDeaths(reader.readInt("deaths"))
              .setDenies(reader.readInt("denies"))
              .setExpPerMinute(reader.readInt("xp_per_min"))
              .setHeroId(reader.readInt("hero_id"))
              .setLastHits(reader.readInt("last_hits"))
-             .setLeaverStatus(reader.readInt("leaver_status", -1))
+//             .setLeaverStatus(reader.readInt("leaver_status", -1))
              .setLevel(reader.readInt("level"))
              .setPlayerSlot(reader.readInt("player_slot"))
              .setTowerDamage(reader.readInt("tower_damage"))
@@ -335,10 +335,10 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
       final int gameMode = reader.readInt("game_mode");
       final int lobbyType = reader.readInt("lobby_type");
       final long matchId = reader.readLong("match_id");
-      final int direTowers = reader.readInt("tower_status_dire");
-      final int radiantTowers = reader.readInt("tower_status_radiant");
-      final int direBarracks = reader.readInt("barracks_status_dire");
-      final int radiantBarracks = reader.readInt("barracks_status_radiant");
+      final byte direTowers = reader.readInt("tower_status_dire").byteValue();
+      final byte radiantTowers = reader.readInt("tower_status_radiant").byteValue();
+      final byte direBarracks = reader.readInt("barracks_status_dire").byteValue();
+      final byte radiantBarracks = reader.readInt("barracks_status_radiant").byteValue();
       final int cluster = reader.readInt("cluster");
       final int season = reader.readInt("season");
       final long startTime = reader.readLong("start_time");

@@ -23,20 +23,22 @@
  */
 protocol DotaStats {
 
-  // GameMode and LobbyType correspond to enums used in the dota_matches table
+  // GameModea and LobbyType correspond to enums used in 
+  // the dota_matches table
   enum GameMode {
     UNKNOWN_ZERO, ALL_PICK, CAPTAINS_MODE, RANDOM_DRAFT, SINGLE_DRAFT, ALL_RANDOM,
     UNKOWN_SIX, THE_DIRETIDE, REVERSE_CAPTAINS_MODE, GREEVILING,
-    TUTORIAL, MID_ONLY, LEAST_PLAYED, NEW_PLAYER_POOL
+    TUTORIAL, MID_ONLY, LEAST_PLAYED, NEW_PLAYER_POOL, COMPENDIUM
   }
 
   enum LobbyType {
     INVALID, PUBLIC_MATCHMAKING, PRACTICE, TOURNAMENT, 
-    TUTORIAL, CO_OP_WITH_BOTS, TEAM_MATCH
+    TUTORIAL, CO_OP_WITH_BOTS, TEAM_MATCH, SOLO_QUEUE
   }
   
   enum LeaverStatus {
-    STAYED, SAFE_ABANDON, ABANDON, BOT
+    STAYED, SAFE_ABANDON, DISCONNECT_ABANDON, ABANDON, ABANDON_AND_RECONNECT, 
+    UNKOWN_FIVE, UNKNOWN_SIX, BOT
   }
 
   // Records when a player leveled up an ability.
@@ -46,6 +48,7 @@ protocol DotaStats {
     int time;
   }
 
+  // Records any additional units, only used for Bear currenty
   record AdditionalUnit {
     string name;
     array<int> item_ids;
@@ -64,10 +67,9 @@ protocol DotaStats {
     int tower_damage;
     int hero_id;
     double exp_per_minute;
-    long account_id;
+    union {null, int} account_id;
     int kills;
-//    LeaverStatus leaver_status;
-    int leaverStatus;
+    LeaverStatus leaver_status;
     int hero_healing;
     int assists;
     double gold_per_minute;

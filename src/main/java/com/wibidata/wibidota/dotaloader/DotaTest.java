@@ -76,7 +76,7 @@ public class DotaTest extends Configured implements Tool {
           JsonObject playerData = playerElem.getAsJsonObject();
           JsonElement leaverStatus = playerData.get("leaver_status");
           int leaverStatusInt = (leaverStatus == null ? -10 : leaverStatus.getAsInt());
-          if(!LEAVER_STATUS.contains(leaverStatusInt)){
+          if(leaverStatusInt > 2){
               LOG.error("Found:" + leaverStatusInt + "\n" + value.toString());
           }
           LEAVER_STATUS.add(leaverStatusInt);
@@ -119,7 +119,7 @@ public class DotaTest extends Configured implements Tool {
   }
 
   public final int run(final String[] args) throws Exception {
-    Job job = new Job(super.getConf(), "Dota Enum Counter");
+    Job job = new Job(super.getConf(), "Dota Scan");
     job.setMapOutputKeyClass(Text.class);
     job.setMapOutputValueClass(LongWritable.class);
 

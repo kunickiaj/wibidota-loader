@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.util.*;
 
 import com.google.gson.JsonArray;
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericFixed;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
@@ -40,12 +42,7 @@ import com.google.gson.JsonParser;
  *
  * <p>Input files should contain JSON data representing a single match. The JSON
  * is expected to follow the API found at http://dev.dota2.com/showthread.php?t=58317.
- *  The the following exceptions are allowed:
- * - account_id can be null (will be set to -1)
- * - additional_unit may be wrapped in an array of length one
- * - game_mode maybe zero (will be set to GameMode.UNKOWN_ZERO)
- * -
- *
+ * A few exceptions are allowed (TODO document them)
  *
  * <pre>
  * { "user_id" : "0", "play_time" : "1325725200000", "song_id" : "1" }
@@ -63,6 +60,10 @@ public class DotaMatchBulkImporterV2 extends KijiBulkImporter<LongWritable, Text
 
   private static int getNullableInt(JsonElement je, int defaultInt){
     return (je == null ? defaultInt : je.getAsInt());
+  }
+
+  private static Integer getNullableInt(JsonElement je){
+      return (je == null ? null : je.getAsInt());
   }
 
   // Reads an AbilityUpgrade object from a Map of its fields
@@ -121,14 +122,15 @@ public class DotaMatchBulkImporterV2 extends KijiBulkImporter<LongWritable, Text
     }
 
     return builder
-             .setAccountId(getNullableInt(playerData.get("account_id"), -1))
+             .setAccountId(getNullableInt(playerData.get("account_id")))
              .setAssists(playerData.get("assists").getAsInt())
              .setDeaths(playerData.get("deaths").getAsInt())
              .setDenies(playerData.get("denies").getAsInt())
              .setExpPerMinute(playerData.get("xp_per_min").getAsDouble())
              .setHeroId(playerData.get("hero_id").getAsInt())
              .setLastHits(playerData.get("last_hits").getAsInt())
-             .setLeaverStatus(getNullableInt(playerData.get("leaver_status"), 0))
+             .setLeaverStatus(LeaverStatus.values()
+                     [getNullableInt(playerData.get("leaver_status"), LeaverStatus.values().length - 1)])
              .setLevel(playerData.get("level").getAsInt())
              .setPlayerSlot(playerData.get("player_slot").getAsInt())
              .setTowerDamage(playerData.get("tower_damage").getAsInt())
@@ -139,7 +141,7 @@ public class DotaMatchBulkImporterV2 extends KijiBulkImporter<LongWritable, Text
              .setHeroHealing(playerData.get("hero_healing").getAsInt())
              .setKills(playerData.get("kills").getAsInt())
              .setItemIds(readItems(playerData))
-             .build();
+            .build();
   }
 
 
@@ -149,39 +151,39 @@ public class DotaMatchBulkImporterV2 extends KijiBulkImporter<LongWritable, Text
 
       try {
           // Parse the JSON and wrap a JSONplayerData over it
-          final JsonObject playerData = PARSER.parse(line.toString()).getAsJsonObject();
+          final JsonObject matchData = PARSER.parse(line.toString()).getAsJsonObject();
 
           // Collect the values we need
-          final long matchId = playerData.get("match_id").getAsLong();
-          final int gameMode = playerData.get("game_mode").getAsInt();
-          final int lobbyType = playerData.get("lobby_type").getAsInt();
-          final int direTowers = playerData.get("tower_status_dire").getAsInt();
-          final int radiantTowers = playerData.get("tower_status_radiant").getAsInt();
-          final int direBarracks = playerData.get("barracks_status_dire").getAsInt();
-          final int radiantBarracks = playerData.get("barracks_status_radiant").getAsInt();
-          final int cluster = playerData.get("cluster").getAsInt();
-          final int season = playerData.get("season").getAsInt();
-          final long startTime = playerData.get("start_time").getAsLong();
-          final long seqNum = playerData.get("match_seq_num").getAsLong();
-          final int leagueId = playerData.get("leagueid").getAsInt();
-          final int firstBloodTime = playerData.get("first_blood_time").getAsInt();
-          final int negativeVotes = playerData.get("negative_votes").getAsInt();
-          final int positiveVotes = playerData.get("positive_votes").getAsInt();
-          final int duration = playerData.get("duration").getAsInt();
-          final boolean radiantWin = playerData.get("radiant_win").getAsBoolean();
+          final long matchId = matchData.get("match_id").getAsLong();
+          final int gameMode = matchData.get("game_mode").getAsInt();
+          final int lobbyType = matchData.get("lobby_type").getAsInt();
+          final int direTowers = matchData.get("tower_status_dire").getAsInt();
+          final int radiantTowers = matchData.get("tower_status_radiant").getAsInt();
+          final int direBarracks = matchData.get("barracks_status_dire").getAsInt();
+          final int radiantBarracks = matchData.get("barracks_status_radiant").getAsInt();
+          final int cluster = matchData.get("cluster").getAsInt();
+          final Integer season = getNullableInt(matchData.get("season"));
+          final long startTime = matchData.get("start_time").getAsLong();
+          final long seqNum = matchData.get("match_seq_num").getAsLong();
+          final int leagueId = matchData.get("leagueid").getAsInt();
+          final int firstBloodTime = matchData.get("first_blood_time").getAsInt();
+          final int negativeVotes = matchData.get("negative_votes").getAsInt();
+          final int positiveVotes = matchData.get("positive_votes").getAsInt();
+          final int duration = matchData.get("duration").getAsInt();
+          final boolean radiantWin = matchData.get("radiant_win").getAsBoolean();
 
-          // Build and parse the player stats
-          final List<Player> playerStats = new ArrayList<Player>(10);
-          for(JsonElement o : playerData.get("players").getAsJsonArray()){
-              playerStats.add(extractPlayer(o.getAsJsonObject()));
+          // Build and parse the match stats
+          final List<Player> matchStats = new ArrayList<Player>(10);
+          for(JsonElement o : matchData.get("players").getAsJsonArray()){
+              matchStats.add(extractPlayer(o.getAsJsonObject()));
           }
-          final Players players = Players.newBuilder().setPlayers(playerStats).build();
+          final Players players = Players.newBuilder().setPlayers(matchStats).build();
 
           // More informative error messages if the modes are out of bounds
-          if(lobbyType < -1 || lobbyType > 5){
+          if(lobbyType < -1 || lobbyType > LobbyType.values().length - 1){
               throw new RuntimeException("Bad lobby type int: " + lobbyType);
           }
-          if(gameMode < 0 || gameMode > 13){
+          if(gameMode < 0 || gameMode > GameMode.values().length){
               throw new RuntimeException("Bad game mode int: " + gameMode);
           }
 
@@ -207,7 +209,7 @@ public class DotaMatchBulkImporterV2 extends KijiBulkImporter<LongWritable, Text
           context.put(eid, "data", "game_mode", startTime,
                   GameMode.values()[gameMode].toString());
           context.put(eid, "data", "lobby_type", startTime,
-                  LobbyType.values()[lobbyType].toString());
+                  LobbyType.values()[lobbyType + 1].toString());
       } catch (RuntimeException re){
           // For RunetimeExceptions we try to log additional information debugging purposes
           try {

@@ -12,14 +12,15 @@ WITH LOCALITY GROUP match_data (
           dire_barracks_status "int",
           radiant_barracks_status "int",
           cluster "int",
-          season "int",
+          season ["null","int"],
           start_time "long",
           game_mode {"type" : "enum", "name" : "game_mode", "symbols" : [
                             "UNKNOWN_ZERO",
                             "ALL_PICK", "CAPTAINS_MODE", "RANDOM_DRAFT", 
                             "SINGLE_DRAFT", "ALL_RANDOM", "UNKOWN_SIX", "THE_DIRETIDE", 
                             "REVERSE_CAPTAINS_MODE", "GREEVILING", "TUTORIAL", 
-                            "MID_ONLY", "LEAST_PLAYED", "NEW_PLAYER_POOL"
+                            "MID_ONLY", "LEAST_PLAYED", "NEW_PLAYER_POOL",
+                            "COMPENDIUM"
                             ]
                      },
           match_seq_num "long",
@@ -31,7 +32,8 @@ WITH LOCALITY GROUP match_data (
           positive_votes "int",
           lobby_type {"type" : "enum", "name" : "lobby_type", "symbols" : [ 
                              "INVALID", "PUBLIC_MATCHMAKING", "PRACTICE", "TOURNAMENT", 
-                             "TUTORIAL", "CO_OP_WITH_BOTS", "TEAM_MATCH"
+                             "TUTORIAL", "CO_OP_WITH_BOTS", "TEAM_MATCH",
+                             "SOLO_QUEUE"
                             ]
                      },
           player_data CLASS com.wibidata.wibidota.avro.Players
