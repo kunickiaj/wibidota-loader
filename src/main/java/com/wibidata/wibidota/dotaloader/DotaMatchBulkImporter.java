@@ -203,10 +203,8 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
           context.put(eid, "data", "duration", startTime, duration);
           context.put(eid, "data", "radiant_wins", startTime, radiantWin);
           context.put(eid, "data", "player_data", startTime, players);
-          context.put(eid, "data", "game_mode", startTime,
-                  GameMode.values()[gameMode].toString());
-          context.put(eid, "data", "lobby_type", startTime,
-                  LobbyType.values()[lobbyType + 1].toString());
+          context.put(eid, "data", "game_mode", startTime, gameMode);
+          context.put(eid, "data", "lobby_type", startTime, lobbyType);
       } catch (RuntimeException re){
           // For RunetimeExceptions we try to log additional information debugging purposes
           try {

@@ -1,10 +1,11 @@
 CREATE TABLE dota_matches
 ROW KEY FORMAT HASH PREFIXED(1)
+PROPERTIES (NUMREGIONS = 4)
 WITH LOCALITY GROUP match_data (
   MAXVERSIONS = INFINITY,
   TTL = FOREVER,
   INMEMORY = false,
-  COMPRESSED WITH NONE,
+  COMPRESSED WITH GZIP,
   FAMILY data (
           match_id "long",
           dire_towers_status "int",
@@ -12,7 +13,7 @@ WITH LOCALITY GROUP match_data (
           dire_barracks_status "int",
           radiant_barracks_status "int",
           cluster "int",
-          season ["null","int"],
+          season ["null", "int"],
           start_time "long",
           game_mode "int",
           match_seq_num "long",
