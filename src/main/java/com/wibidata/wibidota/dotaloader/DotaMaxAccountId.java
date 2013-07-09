@@ -43,11 +43,11 @@ import java.io.IOException;
 import java.util.HashMap;
 
 /**
- * A Map Reduce job built to gather example matches for each value
- * and enum could take, Currently only works for fields in Player objects
+ * A Map Reduce job built to find the maximum value the 'account id' field can take in the
+ * raw  dota-matches JSON
  */
-public class DotaMaxValue extends Configured implements Tool {
-    private static final Logger LOG = LoggerFactory.getLogger(DotaTest.class);
+public class DotaMaxAccountId extends Configured implements Tool {
+    private static final Logger LOG = LoggerFactory.getLogger(DotaMaxAccountId.class);
 
     public static class Map extends Mapper<LongWritable, Text, Text, LongWritable> {
 
@@ -64,6 +64,7 @@ public class DotaMaxValue extends Configured implements Tool {
             JsonElement acccountElem = playerData.get("account_id");
             if(acccountElem != null){
               long accountId = acccountElem.getAsLong();
+              // 4294967295L indicates anonymous and so can be ignored
               if(accountId != 4294967295L && accountId > max){
                 context.write(new Text("account_id"), new LongWritable(accountId));
                 max = accountId;
@@ -72,13 +73,13 @@ public class DotaMaxValue extends Configured implements Tool {
           }
 
         } catch (IllegalStateException e) {
-          // Indicates malformed JSON.
+          // Ignore
         }
       }
     }
 
     /**
-     * Combiner class that aggregates lines
+     * Reducer that continues to search for the max value
      */
     public static class TakeMax
             extends Reducer<Text, LongWritable, Text, LongWritable> {
@@ -98,20 +99,20 @@ public class DotaMaxValue extends Configured implements Tool {
 
   public static void main(String args[]) throws Exception {
     Configuration conf = new Configuration();
-    int res = ToolRunner.run(conf, new DotaMaxValue(), args);
+    int res = ToolRunner.run(conf, new DotaMaxAccountId(), args);
     System.exit(res);
   }
 
   public final int run(final String[] args) throws Exception {
-    Job job = new Job(super.getConf(), "Dota Histogram Builder");
+    Job job = new Job(super.getConf(), "Dota Max Builder");
     job.setMapOutputKeyClass(Text.class);
     job.setMapOutputValueClass(LongWritable.class);
 
-    job.setMapperClass(DotaMaxValue.Map.class);
-    job.setCombinerClass(DotaMaxValue.TakeMax.class);
-    job.setReducerClass(DotaMaxValue.TakeMax.class);
+    job.setMapperClass(DotaMaxAccountId.Map.class);
+    job.setCombinerClass(DotaMaxAccountId.TakeMax.class);
+    job.setReducerClass(DotaMaxAccountId.TakeMax.class);
 
-    job.setJarByClass(DotaMaxValue.class);
+    job.setJarByClass(DotaMaxAccountId.class);
 
     job.setInputFormatClass(TextInputFormat.class);
     job.setOutputFormatClass(TextOutputFormat.class);

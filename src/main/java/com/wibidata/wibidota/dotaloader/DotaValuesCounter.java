@@ -18,12 +18,14 @@
 
 package com.wibidata.wibidota.dotaloader;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import java.io.IOException;
+import java.util.Set;
+import java.util.HashSet;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -38,21 +40,40 @@ import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-
-import java.util.Set;
-import java.util.HashSet;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 /**
  * A Map Reduce job built to gather statistics about the different values various fields stored
  * in raw Dota match JSON data can take. The output can be subdivided by intervals
- * of matches so we can, for instances, see if new records take on values older ones did not.
+ * of matches (based on match sequence numbers) so we can, for instances, see if new records take
+ * on values older ones did not. The output will be pairs of the form
+ * column::value (<start_match_sequence_num>-<end_match_sequence_num> <number of occurances>
+ *
+ * Used to do some pre-analysis on the values to help guide table construction.
  */
-public class DotaTest extends Configured implements Tool {
-  private static final Logger LOG = LoggerFactory.getLogger(DotaTest.class);
+public class DotaValuesCounter extends Configured implements Tool {
+  private static final Logger LOG = LoggerFactory.getLogger(DotaValuesCounter.class);
 
   static enum Counters {
     MALFORMED_MATCH_LINES
+  }
+
+  // Change these fields to change behavior
+
+  // The fields in the JSON to track
+  private static final String[] MATCH_FIELDS = new String[]{"game_mode"};
+
+  // The fields in the player JSONObjects to track
+  private static final String[] PLAYER_FIELDS = new String[]{"leaver_status"};
+
+  // Interval to subdived the results by, can be null
+  private static final Integer INTERVAL = 1000000;
+
+  // Convert a potentially null object to a string
+  private static String safeToString(Object o){
+      return ( o == null ? "null" : o.toString());
   }
 
   /**
@@ -66,20 +87,27 @@ public class DotaTest extends Configured implements Tool {
     // Just to caches this value
     private static final LongWritable ONE = new LongWritable(1);
 
-    private static final Set<Integer> LEAVER_STATUS = new HashSet<Integer>();
+    private static String toReturnKey(String field, long slot, String value){
+        return field + "::" + value +
+               (INTERVAL == null ? "" :
+               " (" + slot * INTERVAL + "-" + (slot + 1) * INTERVAL + ")");
+    }
 
     public void map(LongWritable key, Text value, Context context)
         throws IOException, InterruptedException {
       try{
         JsonObject matchData = PARSER.parse(value.toString()).getAsJsonObject();
+        long seqNum = matchData.get("match_seq_num").getAsLong();
+        long slot = seqNum / INTERVAL;
+        for(String field : MATCH_FIELDS){
+          context.write(new Text(toReturnKey(field, slot, safeToString(matchData.get(field)))), ONE);
+        }
+
         for (JsonElement playerElem : matchData.get("players").getAsJsonArray()) {
           JsonObject playerData = playerElem.getAsJsonObject();
-          JsonElement leaverStatus = playerData.get("leaver_status");
-          int leaverStatusInt = (leaverStatus == null ? -10 : leaverStatus.getAsInt());
-          if(leaverStatusInt > 2){
-              LOG.error("Found:" + leaverStatusInt + "\n" + value.toString());
+          for(String field : PLAYER_FIELDS){
+            context.write(new Text(toReturnKey(field, slot, safeToString(playerData.get(field)))), ONE);
           }
-          LEAVER_STATUS.add(leaverStatusInt);
         }
       } catch (IllegalStateException e) {
         // Indicates malformed JSON.
@@ -90,9 +118,9 @@ public class DotaTest extends Configured implements Tool {
 
   /**
     * Reducer class that aggregates counts, should also be used as a
-    * combiner
+    * combiner for efficiency.
     */
-  public static class Reduce
+  public static class Add
       extends Reducer<Text, LongWritable, Text, LongWritable> {
 
     public void reduce(Text key, Iterable<LongWritable> values, Context context)
@@ -109,27 +137,25 @@ public class DotaTest extends Configured implements Tool {
    * Runs the job, requires that the gson package is made
    * available to the cluster.
    *
-   * @args Should contain the input and output file
+   * @args Should contain the input and output file path
    * @throws Exception is there was a problem running the job
    */
   public static void main(String args[]) throws Exception {
-    JsonParser PARSER = new JsonParser();
-    JsonObject data = PARSER.parse("{\"test\" : \"4294967294\"}").getAsJsonObject();
-    System.out.println(data.get("test"));
-    System.out.println(data.get("test").getAsInt());
-//    Configuration conf = new Configuration();
-//    int res = ToolRunner.run(conf, new DotaTest(), args);
-//    System.exit(res);
+    Configuration conf = new Configuration();
+    int res = ToolRunner.run(conf, new DotaValuesCounter(), args);
+    System.exit(res);
   }
 
   public final int run(final String[] args) throws Exception {
-    Job job = new Job(super.getConf(), "Dota Scan");
+    Job job = new Job(super.getConf(), "Dota Value Counter");
     job.setMapOutputKeyClass(Text.class);
     job.setMapOutputValueClass(LongWritable.class);
 
     job.setMapperClass(Map.class);
+    job.setCombinerClass(Add.class);
+    job.setReducerClass(Add.class);
 
-    job.setJarByClass(DotaTest.class);
+    job.setJarByClass(DotaValuesCounter.class);
 
     job.setInputFormatClass(TextInputFormat.class);
     job.setOutputFormatClass(TextOutputFormat.class);

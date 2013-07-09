@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.wibidata.wibidota.dotaloader.DotaEnums.*;
-
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
@@ -176,14 +174,6 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
               matchStats.add(extractPlayer(o.getAsJsonObject()));
           }
           final Players players = Players.newBuilder().setPlayers(matchStats).build();
-
-          // More informative error messages if the modes are out of bounds
-          if(lobbyType < -1 || lobbyType >= LobbyType.values().length - 1){
-              throw new RuntimeException("Bad lobby type int: " + lobbyType);
-          }
-          if(gameMode < 0 || gameMode >= GameMode.values().length){
-              throw new RuntimeException("Bad game mode int: " + gameMode);
-          }
 
           EntityId eid = context.getEntityId(matchId + "");
 

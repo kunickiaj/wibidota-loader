@@ -1,8 +1,8 @@
 .idea
-*.class
 target
 *.iml
 *.jar
 *.json
 lib
 results
+scripts

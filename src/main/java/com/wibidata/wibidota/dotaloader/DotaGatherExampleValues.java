@@ -45,15 +45,17 @@ import java.util.HashMap;
 
 /**
  * A Map Reduce job built to gather example matches for each value
- * and enum could take, Currently only works for fields in Player objects
+ * and columns could take, Currently only works for fields in Player objects,
+ * useful if you need to manually check what values map to what in game events.
  */
-public class DotaEnumGatherExamples extends Configured implements Tool {
-    private static final Logger LOG = LoggerFactory.getLogger(DotaTest.class);
+public class DotaGatherExampleValues extends Configured implements Tool {
+    private static final Logger LOG = LoggerFactory.getLogger(DotaGatherExampleValues.class);
 
     static enum Counters {
         MALFORMED_MATCH_LINES
     }
 
+    // Get more human-readable player slot numbers
     public static int playerSlot(int bits){
       int slot = 0;
       if(bits >> 7 == 1){
@@ -65,7 +67,7 @@ public class DotaEnumGatherExamples extends Configured implements Tool {
     // Maximum number of examples to print per a value
     private static int MAX_EXAMPLES = 10;
 
-    // Fields to gather values from
+    // Field to gather values from
     private static String FIELD = "leaver_status";
 
     // String to represent null
@@ -148,7 +150,8 @@ public class DotaEnumGatherExamples extends Configured implements Tool {
                     long matchId = matchData.get("match_id").getAsLong();
                     for (JsonElement playerElem : matchData.get("players").getAsJsonArray()) {
                         JsonObject playerData = playerElem.getAsJsonObject();
-                        String fieldValue = (playerData.get(FIELD) == null ? NULL_STR : playerData.get(FIELD).getAsString());
+                        String fieldValue = (playerData.get(FIELD) == null ? NULL_STR :
+                            playerData.get(FIELD).getAsString());
                         if(key.toString().equals(fieldValue)){
                             summaryString.append("Match: " + matchId + " player: " +
                                     playerData.get("player_slot").getAsInt() + " (" +
@@ -178,12 +181,12 @@ public class DotaEnumGatherExamples extends Configured implements Tool {
      */
     public static void main(String args[]) throws Exception {
         Configuration conf = new Configuration();
-        int res = ToolRunner.run(conf, new DotaEnumGatherExamples(), args);
+        int res = ToolRunner.run(conf, new DotaGatherExampleValues(), args);
         System.exit(res);
     }
 
     public final int run(final String[] args) throws Exception {
-        Job job = new Job(super.getConf(), "Dota Enum Gatherer");
+        Job job = new Job(super.getConf(), "Dota Gatherer Example Values");
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(Text.class);
 
@@ -191,7 +194,7 @@ public class DotaEnumGatherExamples extends Configured implements Tool {
         job.setCombinerClass(AppendText.class);
         job.setReducerClass(EnumGatherReducer.class);
 
-        job.setJarByClass(DotaEnumGatherExamples.class);
+        job.setJarByClass(DotaGatherExampleValues.class);
 
         job.setInputFormatClass(TextInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);
