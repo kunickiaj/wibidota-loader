@@ -21,9 +21,10 @@ WITH LOCALITY GROUP match_data (
           first_blood_time "int",
           negative_votes "int",
           duration "int",
-          radiant_wins "boolean",
+          radiant_win "boolean",
           positive_votes "int",
           lobby_type ["null", "int"],
+          human_players "int",
           player_data CLASS com.wibidata.wibidota.avro.Players
   ),
   MAP TYPE FAMILY derived_data "double"

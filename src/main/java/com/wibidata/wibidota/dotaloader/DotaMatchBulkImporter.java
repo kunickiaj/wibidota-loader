@@ -168,6 +168,7 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
           final int positiveVotes = matchData.get("positive_votes").getAsInt();
           final int duration = matchData.get("duration").getAsInt();
           final boolean radiantWin = matchData.get("radiant_win").getAsBoolean();
+          final int humanPlayers = matchData.get("human_players").getAsInt();
 
           // Build and parse the match stats
           final List<Player> matchStats = new ArrayList<Player>(10);
@@ -201,10 +202,11 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
           context.put(eid, "data", "negative_votes", startTime, negativeVotes);
           context.put(eid, "data", "positive_votes", startTime, positiveVotes);
           context.put(eid, "data", "duration", startTime, duration);
-          context.put(eid, "data", "radiant_wins", startTime, radiantWin);
+          context.put(eid, "data", "radiant_win", startTime, radiantWin);
           context.put(eid, "data", "player_data", startTime, players);
           context.put(eid, "data", "game_mode", startTime, gameMode);
           context.put(eid, "data", "lobby_type", startTime, lobbyType);
+          context.put(eid, "data", "human_players", startTime, humanPlayers);
       } catch (RuntimeException re){
           // For RunetimeExceptions we try to log additional information debugging purposes
           try {
