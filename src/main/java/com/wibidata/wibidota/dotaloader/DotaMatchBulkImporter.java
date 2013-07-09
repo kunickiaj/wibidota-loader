@@ -56,12 +56,12 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
 
   static final JsonParser PARSER = new JsonParser();
 
-  private static int getNullableInt(JsonElement je, int defaultInt){
-    return (je == null ? defaultInt : je.getAsInt());
-  }
-
   private static Integer getNullableInt(JsonElement je){
       return (je == null ? null : je.getAsInt());
+  }
+
+  private static Long getNullableLong(JsonElement je){
+    return (je == null ? null : je.getAsLong());
   }
 
   // Reads an AbilityUpgrade object from a Map of its fields
@@ -119,12 +119,8 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
               .build());
     }
 
-
-    LOG.error("HERO HEALING " + playerData.get("hero_healing"));
-    LOG.error("HERO HEALING " + playerData.get("hero_healing").getAsInt()) ;
-
     return builder
-             .setAccountId(getNullableInt(playerData.get("account_id")))
+             .setAccountId(getNullableLong(playerData.get("account_id")))
              .setAssists(playerData.get("assists").getAsInt())
              .setDeaths(playerData.get("deaths").getAsInt())
              .setDenies(playerData.get("denies").getAsInt())

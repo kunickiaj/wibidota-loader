@@ -21,7 +21,7 @@
 /**
  * Avro schemas for sorting stats about dota 2 games.
  */
-protocol DotaStats {
+protocol DotaMatch {
 
   // Records when a player leveled up an ability.
   record AbilityUpgrade {
@@ -49,7 +49,7 @@ protocol DotaStats {
     int tower_damage;
     int hero_id;
     double exp_per_minute;
-    union {null, int} account_id;
+    union {null, long} account_id;
     int kills;
     union {null, int} leaver_status;
     int hero_healing;
