@@ -1,5 +1,5 @@
 CREATE TABLE dota_matches
-ROW KEY FORMAT HASH PREFIXED(4)
+ROW KEY FORMAT HASH PREFIXED(1)
 WITH LOCALITY GROUP match_data (
   MAXVERSIONS = INFINITY,
   TTL = FOREVER,
@@ -14,15 +14,7 @@ WITH LOCALITY GROUP match_data (
           cluster "int",
           season ["null","int"],
           start_time "long",
-          game_mode {"type" : "enum", "name" : "game_mode", "symbols" : [
-                            "UNKNOWN_ZERO",
-                            "ALL_PICK", "CAPTAINS_MODE", "RANDOM_DRAFT", 
-                            "SINGLE_DRAFT", "ALL_RANDOM", "UNKOWN_SIX", "THE_DIRETIDE", 
-                            "REVERSE_CAPTAINS_MODE", "GREEVILING", "TUTORIAL", 
-                            "MID_ONLY", "LEAST_PLAYED", "NEW_PLAYER_POOL",
-                            "COMPENDIUM"
-                            ]
-                     },
+          game_mode "int",
           match_seq_num "long",
           league_id "int",
           first_blood_time "int",
@@ -30,12 +22,7 @@ WITH LOCALITY GROUP match_data (
           duration "int",
           radiant_wins "boolean",
           positive_votes "int",
-          lobby_type {"type" : "enum", "name" : "lobby_type", "symbols" : [ 
-                             "INVALID", "PUBLIC_MATCHMAKING", "PRACTICE", "TOURNAMENT", 
-                             "TUTORIAL", "CO_OP_WITH_BOTS", "TEAM_MATCH",
-                             "SOLO_QUEUE"
-                            ]
-                     },
+          lobby_type ["null", "int"],
           player_data CLASS com.wibidata.wibidota.avro.Players
   ),
   MAP TYPE FAMILY derived_data "double"

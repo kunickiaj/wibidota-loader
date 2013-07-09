@@ -116,7 +116,7 @@ public class DotaEnumCounter extends Configured implements Tool {
     * Reducer class that aggregates counts, should also be used as a
     * combiner
     */
-  public static class Reduce
+  public static class Add
       extends Reducer<Text, LongWritable, Text, LongWritable> {
 
     public void reduce(Text key, Iterable<LongWritable> values, Context context)
@@ -148,8 +148,8 @@ public class DotaEnumCounter extends Configured implements Tool {
     job.setMapOutputValueClass(LongWritable.class);
 
     job.setMapperClass(Map.class);
-    job.setCombinerClass(Reduce.class);
-    job.setReducerClass(Reduce.class);
+    job.setCombinerClass(Add.class);
+    job.setReducerClass(Add.class);
 
     job.setJarByClass(DotaEnumCounter.class);
 

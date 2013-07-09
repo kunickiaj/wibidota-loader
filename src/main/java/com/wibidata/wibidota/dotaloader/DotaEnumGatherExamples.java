@@ -47,7 +47,7 @@ import java.util.HashMap;
  * A Map Reduce job built to gather example matches for each value
  * and enum could take, Currently only works for fields in Player objects
  */
-public class DotaEnumGather extends Configured implements Tool {
+public class DotaEnumGatherExamples extends Configured implements Tool {
     private static final Logger LOG = LoggerFactory.getLogger(DotaTest.class);
 
     static enum Counters {
@@ -115,7 +115,7 @@ public class DotaEnumGather extends Configured implements Tool {
     /**
      * Combiner class that aggregates lines
      */
-    public static class EnumGatherCombiner
+    public static class AppendText
             extends Reducer<Text, Text, Text, Text> {
 
         public void reduce(Text key, Iterable<Text> values, Context context)
@@ -178,7 +178,7 @@ public class DotaEnumGather extends Configured implements Tool {
      */
     public static void main(String args[]) throws Exception {
         Configuration conf = new Configuration();
-        int res = ToolRunner.run(conf, new DotaEnumGather(), args);
+        int res = ToolRunner.run(conf, new DotaEnumGatherExamples(), args);
         System.exit(res);
     }
 
@@ -188,10 +188,10 @@ public class DotaEnumGather extends Configured implements Tool {
         job.setMapOutputValueClass(Text.class);
 
         job.setMapperClass(EnumGatherMap.class);
-        job.setCombinerClass(EnumGatherCombiner.class);
+        job.setCombinerClass(AppendText.class);
         job.setReducerClass(EnumGatherReducer.class);
 
-        job.setJarByClass(DotaEnumGather.class);
+        job.setJarByClass(DotaEnumGatherExamples.class);
 
         job.setInputFormatClass(TextInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);

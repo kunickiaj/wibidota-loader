@@ -113,9 +113,13 @@ public class DotaTest extends Configured implements Tool {
    * @throws Exception is there was a problem running the job
    */
   public static void main(String args[]) throws Exception {
-    Configuration conf = new Configuration();
-    int res = ToolRunner.run(conf, new DotaTest(), args);
-    System.exit(res);
+    JsonParser PARSER = new JsonParser();
+    JsonObject data = PARSER.parse("{\"test\" : \"4294967294\"}").getAsJsonObject();
+    System.out.println(data.get("test"));
+    System.out.println(data.get("test").getAsInt());
+//    Configuration conf = new Configuration();
+//    int res = ToolRunner.run(conf, new DotaTest(), args);
+//    System.exit(res);
   }
 
   public final int run(final String[] args) throws Exception {
