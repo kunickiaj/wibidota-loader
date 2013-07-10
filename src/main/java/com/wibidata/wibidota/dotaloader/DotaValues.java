@@ -1,5 +1,6 @@
 package com.wibidata.wibidota.dotaloader;
 
+import org.kiji.schema.KijiColumnName;
 import org.kiji.schema.KijiRowData;
 import org.kiji.schema.KijiTable;
 import org.kiji.schema.KijiTableReader;
@@ -36,6 +37,13 @@ public final class DotaValues {
   private DotaValues() {}
 
 
+  /**
+   * Maps the play_slot int as returned by the Dota 2 api to
+   * a more readable form
+   * @param num, the player slot as encoded by the Dota 2 api
+   * @return 0-4 for the first-last slots of the Radiant, 5-9 for
+   * the first-last slots on the Dire
+   */
   public static int playerSlot(int num){
     int slot = 0;
     if(num >> 7 == 1){
@@ -130,6 +138,33 @@ public final class DotaValues {
     public boolean botRanged(){
       return barracks[5];
     }
+  }
+
+  public static enum Columns {
+    MATCH_ID("match_id"),
+    DIRE_TOWERS_STATUS("dire_tower_staus"),
+    RADIANT_TOWERS_STATUS("radiant_tower_status"),
+    CLUSTER("cluster"),
+    SEASON("season"),
+    START_TIME("start_time"),
+    GAME_MODE("game_mode"),
+    MATCH_SEQ_NUM("match_seq_num"),
+    LEAGUE_ID("league_id"),
+    FIRST_BLOOD_TIME("first_blood_time"),
+    NEGATIVE_VOTES("negative_votes"),
+    DURATION("duration"),
+    RADIANT_WIN("radiant_win"),
+    POSITIVE_VOTES("positive_votes"),
+    LOBBY_TYPE("lobby_type"),
+    HUMAN_PLAYERS("human_players"),
+    PLAYER_DATA("player_data");
+
+    private final String name;
+    Columns(String name) { this.name = name; }
+    public String toString() { return name; }
+    public KijiColumnName columnName() {
+      return new KijiColumnName("data", name);}
+
   }
 
   // ***** enums used in Dota 2. ADDITIONAL ENUMS COULD BE ADDED AS DOTA 2 CHANGES *****

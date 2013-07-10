@@ -168,7 +168,8 @@ public class DotaGatherExampleValues extends Configured implements Tool {
                     break;
                 }
             }
-            context.write(key, new Text(summaryString.toString() + "\n***** JSON *****\n" + allLines.toString()));
+            context.write(key, new Text(summaryString.toString() +
+                "\n***** LINES *****\n" + allLines.toString()));
         }
     }
 
