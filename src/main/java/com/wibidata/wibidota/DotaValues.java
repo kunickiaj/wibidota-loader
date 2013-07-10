@@ -1,9 +1,6 @@
 package com.wibidata.wibidota;
 
 import org.kiji.schema.KijiColumnName;
-import org.kiji.schema.KijiRowData;
-import org.kiji.schema.KijiTable;
-import org.kiji.schema.KijiTableReader;
 
 /**
  * (c) Copyright 2013 WibiData, Inc.

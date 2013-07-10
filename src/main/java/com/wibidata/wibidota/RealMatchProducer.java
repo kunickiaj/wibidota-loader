@@ -8,6 +8,7 @@ import org.kiji.schema.KijiRowData;
 import com.wibidata.wibidota.DotaValues.Columns;
 import com.wibidata.wibidota.DotaValues.LeaverStatus;
 import com.wibidata.wibidota.DotaValues.LobbyType;
+import com.wibidata.wibidota.avro.Player;
 
 import java.io.IOException;
 import java.util.List;

@@ -22,6 +22,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.wibidata.wibidota.avro.AbilityUpgrade;
+import com.wibidata.wibidota.avro.AdditionalUnit;
+import com.wibidata.wibidota.avro.Player;
+import com.wibidata.wibidota.avro.Players;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;

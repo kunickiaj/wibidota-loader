@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-@namespace("com.wibidata.wibidota")
+@namespace("com.wibidata.wibidota.avro")
 /**
  * Avro schemas for sorting stats about dota 2 games.
  */
