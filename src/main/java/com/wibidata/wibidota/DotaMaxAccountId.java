@@ -16,7 +16,7 @@
 * limitations under the License.
 */
 
-package com.wibidata.wibidota.dotaloader;
+package com.wibidata.wibidota;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

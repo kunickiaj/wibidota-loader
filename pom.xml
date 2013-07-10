@@ -39,10 +39,6 @@
         <configuration>
           <artifactItems>
             <artifactItem>
-              <groupId>com.googlecode.json-simple</groupId>
-              <artifactId>json-simple</artifactId>
-            </artifactItem>
-            <artifactItem>
               <groupId>com.google.code.gson</groupId>
               <artifactId>gson</artifactId>
             </artifactItem>
@@ -61,10 +57,6 @@
             </goals>
             <configuration>
               <artifactItems>
-                <artifactItem>
-                  <groupId>com.googlecode.json-simple</groupId>
-                  <artifactId>json-simple</artifactId>
-                </artifactItem>
                 <artifactItem>
                   <groupId>com.google.code.gson</groupId>
                   <artifactId>gson</artifactId>
@@ -154,11 +146,6 @@
       <groupId>org.apache.avro</groupId>
       <artifactId>avro-compiler</artifactId>
       <version>1.7.4</version>
-    </dependency>
-    <dependency>
-      <groupId>com.googlecode.json-simple</groupId>
-      <artifactId>json-simple</artifactId>
-      <version>1.1</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.gson</groupId>

@@ -1,4 +1,4 @@
-package com.wibidata.wibidota.dotaloader;
+package com.wibidata.wibidota;
 
 import org.kiji.schema.KijiColumnName;
 import org.kiji.schema.KijiRowData;

@@ -1,12 +1,12 @@
 USE wibidota;
 CREATE TABLE dota_matches
 ROW KEY FORMAT HASH PREFIXED(1)
-PROPERTIES (NUMREGIONS = 64)
+PROPERTIES (NUMREGIONS = 4)
 WITH LOCALITY GROUP match_data (
   MAXVERSIONS = INFINITY,
   TTL = FOREVER,
   INMEMORY = false,
-  COMPRESSED WITH SNAPPY,
+  COMPRESSED WITH GZIP,
   FAMILY data (
           match_id "long",
           dire_towers_status "int",
@@ -30,4 +30,3 @@ WITH LOCALITY GROUP match_data (
   ),
   MAP TYPE FAMILY derived_data "double"
 );
-

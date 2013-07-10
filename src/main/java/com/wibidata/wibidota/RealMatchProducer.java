@@ -1,13 +1,13 @@
-package com.wibidata.wibidota.dotaloader;
+package com.wibidata.wibidota;
 
 import org.kiji.mapreduce.produce.KijiProducer;
 import org.kiji.mapreduce.produce.ProducerContext;
 import org.kiji.schema.KijiDataRequest;
 import org.kiji.schema.KijiDataRequestBuilder;
 import org.kiji.schema.KijiRowData;
-import com.wibidata.wibidota.dotaloader.DotaValues.Columns;
-import com.wibidata.wibidota.dotaloader.DotaValues.LeaverStatus;
-import com.wibidata.wibidota.dotaloader.DotaValues.LobbyType;
+import com.wibidata.wibidota.DotaValues.Columns;
+import com.wibidata.wibidota.DotaValues.LeaverStatus;
+import com.wibidata.wibidota.DotaValues.LobbyType;
 
 import java.io.IOException;
 import java.util.List;
