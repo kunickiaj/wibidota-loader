@@ -115,10 +115,10 @@ public class DotaValuesHistogram extends KijiGatherer{
 
   public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
 //  EntityIdFactory.getFactory(RowKeyFormat2.newBuilder().setComponents(null).build()).
-  List<RowKeyComponent> lst = new ArrayList<RowKeyComponent>();
+//  List<RowKeyComponent> lst = new ArrayList<RowKeyComponent>();
 //  lst.add(RowKeyComponent.newBuilder().setType(ComponentType.LONG).setName("?").build());
-  EntityIdFactory d = EntityIdFactory.getFactory(RowKeyFormat2.newBuilder().
-      setComponents(lst).setSalt(HashSpec.newBuilder().setHashType(HashType.MD5).).build());
+//  EntityIdFactory d = EntityIdFactory.getFactory(RowKeyFormat2.newBuilder().
+//      setComponents(lst).setSalt(HashSpec.newBuilder().setHashType(HashType.MD5).).build());
     KijiMapReduceJob job = KijiGatherJobBuilder.create()
         .withInputTable(KijiURI.newBuilder()
             .withTableName("dota_matches").withInstanceName("wibidota").build())
