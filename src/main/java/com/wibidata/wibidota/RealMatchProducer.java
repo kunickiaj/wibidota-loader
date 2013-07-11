@@ -1,3 +1,29 @@
+/**
+ * (c) Copyright 2013 WibiData, Inc.
+ *
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Class that can represent raw values held in the dota_matches tables in a more human readable
+ * way. NOTE this should be relatively stable but changes might occur if Valve changes their
+ * API. In particular additional enum may be added as more game modes or lobby types are
+ * introduced.
+ */
+
 package com.wibidata.wibidota;
 
 import com.wibidata.wibidota.avro.Players;
@@ -18,6 +44,11 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Creates add a 'real_match' column to the derived data field that is 1.0 iff the match is a
+ * a public mathmaking, tournament, team_match, solo_queue game played with game modes:
+ *
+ */
 public class RealMatchProducer extends KijiProducer {
 
   private static final Logger LOG = LoggerFactory.getLogger(RealMatchProducer.class);
