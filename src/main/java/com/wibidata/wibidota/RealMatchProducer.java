@@ -12,36 +12,28 @@ import com.wibidata.wibidota.DotaValues.LeaverStatus;
 import com.wibidata.wibidota.DotaValues.LobbyType;
 import com.wibidata.wibidota.avro.Player;
 import org.kiji.schema.KijiURI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
 
 public class RealMatchProducer extends KijiProducer {
 
-  private static boolean isRealMatch(KijiRowData kijiRowData) throws IOException {
-    int gameMode = (Integer) kijiRowData.getMostRecentCell("data", "game_mode").getData();
-    if(gameMode > 6 && gameMode != 12 && gameMode != 14){
-      return false;
-    }
-    Integer o = kijiRowData.getMostRecentValue("data", "lobby_type");
-    if(o == null){
-      throw new RuntimeException(kijiRowData.toString());
-    }
-    LobbyType lobbyType = LobbyType.fromInt(o);
-    if(!(lobbyType == LobbyType.PUBLIC_MATCHMAKING ||
-        lobbyType == LobbyType.TOURNAMENT ||
-        lobbyType == LobbyType.TEAM_MATCH ||
-        lobbyType == LobbyType.SOLO_QUEUE)){
-      return false;
-    }
-    Players player_data = kijiRowData.getMostRecentValue("data", "player_data");
-    List<Player> players = player_data.getPlayers();
-    for(Player player : players){
-      LeaverStatus ls = LeaverStatus.fromInt(player.getLeaverStatus());
-      if(LeaverStatus.fromInt(player.getLeaverStatus()) == LeaverStatus.STAYED){
-        return false;
-      }
-    }
+  private static final Logger LOG = LoggerFactory.getLogger(RealMatchProducer.class);
+
+  static enum Counters {
+    MALFORMED_MATCH_LINES,
+    GOOD_MATCHES,
+    BAD_GAME_MODE,
+    BAD_LOBBY,
+    LEAVERS,
+    REAL_MATCH_WITH_LEAVERS,
+    BAD_MATCHES
+  }
+
+  private boolean isRealMatch(KijiRowData kijiRowData) throws IOException {
+
     return true;
   }
 
@@ -64,8 +56,39 @@ public class RealMatchProducer extends KijiProducer {
 
   @Override
   public void produce(KijiRowData kijiRowData, ProducerContext producerContext) throws IOException {
-    if(isRealMatch(kijiRowData)){
+    boolean realMatch = true;
+    int gameMode = (Integer) kijiRowData.getMostRecentCell("data", "game_mode").getData();
+    if(gameMode > 6 && gameMode != 12 && gameMode != 14){
+      producerContext.incrementCounter(Counters.BAD_GAME_MODE);
+      realMatch = false;
+    }
+    Integer o = kijiRowData.getMostRecentValue("data", "lobby_type");
+    LobbyType lobbyType = LobbyType.fromInt(o);
+    if(!(lobbyType == LobbyType.PUBLIC_MATCHMAKING ||
+        lobbyType == LobbyType.TOURNAMENT ||
+        lobbyType == LobbyType.TEAM_MATCH ||
+        lobbyType == LobbyType.SOLO_QUEUE)){
+      producerContext.incrementCounter(Counters.BAD_LOBBY);
+      realMatch = false;
+    }
+    Players player_data = kijiRowData.getMostRecentValue("data", "player_data");
+    List<Player> players = player_data.getPlayers();
+    for(Player player : players){
+      LeaverStatus ls = LeaverStatus.fromInt(player.getLeaverStatus());
+      if(LeaverStatus.fromInt(player.getLeaverStatus()) != LeaverStatus.STAYED){
+        producerContext.incrementCounter(Counters.LEAVERS);
+        if(realMatch){
+          producerContext.incrementCounter(Counters.REAL_MATCH_WITH_LEAVERS);
+        }
+        realMatch = false;
+      }
+    }
+
+    if(realMatch){
+      producerContext.incrementCounter(Counters.GOOD_MATCHES);
       producerContext.put("real_match", 0L, 1.0);
+    } else {
+      producerContext.incrementCounter(Counters.BAD_MATCHES);
     }
   }
 
