@@ -23,18 +23,12 @@ public class RealMatchProducer extends KijiProducer {
   private static final Logger LOG = LoggerFactory.getLogger(RealMatchProducer.class);
 
   static enum Counters {
-    MALFORMED_MATCH_LINES,
     GOOD_MATCHES,
     BAD_GAME_MODE,
     BAD_LOBBY,
     LEAVERS,
     REAL_MATCH_WITH_LEAVERS,
     BAD_MATCHES
-  }
-
-  private boolean isRealMatch(KijiRowData kijiRowData) throws IOException {
-
-    return true;
   }
 
   @Override
@@ -74,7 +68,6 @@ public class RealMatchProducer extends KijiProducer {
     Players player_data = kijiRowData.getMostRecentValue("data", "player_data");
     List<Player> players = player_data.getPlayers();
     for(Player player : players){
-      LeaverStatus ls = LeaverStatus.fromInt(player.getLeaverStatus());
       if(LeaverStatus.fromInt(player.getLeaverStatus()) != LeaverStatus.STAYED){
         producerContext.incrementCounter(Counters.LEAVERS);
         if(realMatch){
