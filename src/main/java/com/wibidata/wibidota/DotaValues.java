@@ -189,7 +189,7 @@ public final class DotaValues {
     LobbyType(int rawValue) { this.rawValue = rawValue; }
     public int getEncoding() { return rawValue; }
 
-    public static LobbyType fromInt(int i){
+    public static LobbyType fromInt(Integer i){
       return LobbyType.values()[i + 1];
     }
 
@@ -199,7 +199,7 @@ public final class DotaValues {
     STAYED(0), SAFE_ABANDON(1), DISCONNECT_ABANDON(2), ABANDON(3), ABANDON_AND_RECONNECT(4),
     UNKOWN_FIVE(6), UNKNOWN_SIX(7), BOT(null);
 
-    private final int rawValue;
+    private final Integer rawValue;
     LeaverStatus(Integer rawValue) { this.rawValue = rawValue; }
     public Integer getEncoding() { return rawValue; }
 
