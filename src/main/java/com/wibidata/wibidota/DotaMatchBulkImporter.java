@@ -122,7 +122,7 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
     }
 
     return builder
-             .setAccountId(getNullableLong(playerData.get("account_id")))
+             .setAccountId(getNullableInt(playerData.get("account_id")))
              .setAssists(playerData.get("assists").getAsInt())
              .setDeaths(playerData.get("deaths").getAsInt())
              .setDenies(playerData.get("denies").getAsInt())

@@ -49,7 +49,7 @@ protocol DotaMatch {
     int tower_damage;
     int hero_id;
     double exp_per_minute;
-    union {null, long} account_id;
+    union {null, int} account_id;
     int kills;
     union {null, int} leaver_status;
     int hero_healing;
