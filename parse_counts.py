@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from collections import defaultdict
+from operator import itemgetter
 
 def extractKVCountsFromFile(file_name, kv_counts):
   pairs = []
@@ -18,7 +19,6 @@ def extractKVCountsFromFile(file_name, kv_counts):
 
 def extractKVCountsFromFolder(folder_name):
   kv_counts = defaultdict(list) 
-  print("Looking for k-v pairs in folder: " + folder_name)
   for file_name in listdir(folder_name):
     file_name = folder_name + "/" + file_name
     if(isfile(file_name) and not file_name.startswith("_")):
@@ -33,15 +33,14 @@ def graph(kv_counts):
       x_values.add(x)
 
   x_values = list(x_values)
+  x_values.sort()
   for kv_str, (x_lst, y_lst) in kv_counts.iteritems():
     i = 0
     while(True):
-      if x_lst[i] > x_values[i]:
-        x_lst.insert(x_values[i], i -1)
-        y_lst.insert(0, i -1)
-      elif:
-      if x_lst[i] > x_values[i]:
-
+      
+      if len(x_lst) == i or x_lst[i] < x_values[i]:
+        x_lst.insert(i, x_values[i])
+        y_lst.insert(i, 0)
       i += 1
       if i == len(x_values):
         break
@@ -55,9 +54,11 @@ if __name__ == "__main__":
   folder_name = sys.argv[1]
   kv_counts = extractKVCountsFromFolder(folder_name)    
   for kv_str, counts in kv_counts.iteritems():
+    counts.sort(key=itemgetter(0))
     x, y = zip(*counts)
     x = list(x)
     y = list(y)
+    
     kv_counts[kv_str] = (x ,y)
   graph(kv_counts)
   

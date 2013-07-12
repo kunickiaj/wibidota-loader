@@ -30,6 +30,8 @@ public class DotaValuesHistogram extends KijiGatherer{
 
   private static final LongWritable ONE = new LongWritable(1);
 
+  private static int rows = 0;
+
   private static interface KeyGenerator {
     public String getKey(KijiRowData row) throws IOException;
     public String[] getColumnNames();
@@ -93,8 +95,12 @@ public class DotaValuesHistogram extends KijiGatherer{
 
   @Override
   public void gather(KijiRowData input, GathererContext context) throws IOException {
+    rows++;
     for(KeyGenerator kg: MATCH_KEYS){
       context.write(new Text(kg.getKey(input)), ONE);
+    }
+    if(rows % 500 == 0){
+      LOG.info("Processes row: " + rows);
     }
   }
 
