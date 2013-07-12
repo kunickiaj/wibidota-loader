@@ -2,6 +2,8 @@ package com.wibidata.wibidota;
 
 import org.kiji.schema.KijiColumnName;
 
+import java.util.Map;
+
 /**
  * (c) Copyright 2013 WibiData, Inc.
  *
@@ -30,6 +32,8 @@ import org.kiji.schema.KijiColumnName;
 public final class DotaValues {
 
 
+  private static final String HERO_CSV = ""
+
   // This class should not be instantiated
   private DotaValues() {}
 
@@ -47,6 +51,22 @@ public final class DotaValues {
       slot += 5;
     }
     return slot + (num & 7);
+  }
+
+  private static Map<Integer, String> heroNames = null;
+
+  /**
+   * Translates hero ids to hero names
+   *
+   * @param i, the hero's ID
+   * @return The heros name
+   */
+  public static String getHeroName(int i){
+    if(heroNames == null) {
+
+    }
+    return heroNames.get(i);
+
   }
 
   public static class Towers {

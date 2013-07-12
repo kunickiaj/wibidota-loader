@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 from collections import defaultdict
 from operator import itemgetter
+import datetime
+
+DATE_FORMAT = '%Y-%m-%d'
 
 def extractKVCountsFromFile(file_name, kv_counts):
   pairs = []
@@ -48,7 +51,7 @@ def graph(kv_counts):
 
   for kv_str, (x_lst, y_lst) in kv_counts.iteritems():        
     print(kv_str + "," + ",".join(map(str, y_lst)))
-  print("X," + ",".join(map(str, x_values)))
+  print("X," + ",".join(map(lambda x : (datetime.datetime.fromtimestamp(x).strftime(DATE_FORMAT)), x_values)))
 
 if __name__ == "__main__":
   folder_name = sys.argv[1]
