@@ -31,32 +31,33 @@ def graph(kv_counts):
   for kv_str, (x_lst, y_lst) in kv_counts.iteritems():
     for x in x_lst:
       x_values.add(x)
+
   x_values = list(x_values)
-  min_x = min(x_values)
-  max_x = max(x_values)
-  all
-  
+  for kv_str, (x_lst, y_lst) in kv_counts.iteritems():
+    i = 0
+    while(True):
+      if x_lst[i] > x_values[i]:
+        x_lst.insert(x_values[i], i -1)
+        y_lst.insert(0, i -1)
+      elif:
+      if x_lst[i] > x_values[i]:
 
-  jet = plt.get_cmap('jet')   
-  old_points = (x_values, [0 for k in range(len(x_values))])
-  for i, (kv_str, (x, y)) in enumerate(kv_counts.iteritems()):
-    if(max_x == None):
-      max_x = min(x)
-      min_x = max(x)
-    c = jet((float(i)/len(kv_str)))
-    plt.plot(x, y, color=c, linewidth=2.0)
-    plt.fill_between(x,y,old_points[1],color=c)
+      i += 1
+      if i == len(x_values):
+        break
 
 
-  plt.xlim(min_x, max_x)
-  plt.show()
-
+  for kv_str, (x_lst, y_lst) in kv_counts.iteritems():        
+    print(kv_str + "," + ",".join(map(str, y_lst)))
+  print("X," + ",".join(map(str, x_values)))
 
 if __name__ == "__main__":
   folder_name = sys.argv[1]
   kv_counts = extractKVCountsFromFolder(folder_name)    
   for kv_str, counts in kv_counts.iteritems():
     x, y = zip(*counts)
+    x = list(x)
+    y = list(y)
     kv_counts[kv_str] = (x ,y)
   graph(kv_counts)
   

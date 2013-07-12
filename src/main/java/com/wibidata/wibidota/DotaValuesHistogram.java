@@ -58,8 +58,6 @@ public class DotaValuesHistogram extends KijiGatherer{
 
     public String getKey(KijiRowData row) throws IOException {
       Integer value = row.getMostRecentValue(family, column);
-      LOG.error("GOT ROW: " + row.toString());
-      LOG.error(family + ":" + column + ": " + value);
       StringBuilder sb = new StringBuilder();
       sb.append(family + ":" + column + "=" + (value == null ? nullStr : value));
       if(interval != null){
