@@ -72,7 +72,7 @@ public class DotaValuesHistogram extends KijiGatherer{
   }
 
   private static KeyGenerator[] MATCH_KEYS = new KeyGenerator[]{
-      new ValueByTime("data", "game_mode", 100000L)
+      new ValueByTime("data", "game_mode", 10000L)
    };
 
   @Override

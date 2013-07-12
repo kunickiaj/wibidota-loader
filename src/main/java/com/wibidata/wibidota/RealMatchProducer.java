@@ -46,7 +46,8 @@ import java.util.List;
 
 /**
  * Creates add a 'real_match' column to the derived data field that is 1.0 iff the match is a
- * a public mathmaking, tournament, team_match, solo_queue game played with game modes:
+ * a public mathmaking, tournament, team_match, solo_queue game played with game modes
+ * AP, CP, AR, RD, LP, or Compendium and has no leavers.
  *
  */
 public class RealMatchProducer extends KijiProducer {
@@ -54,12 +55,12 @@ public class RealMatchProducer extends KijiProducer {
   private static final Logger LOG = LoggerFactory.getLogger(RealMatchProducer.class);
 
   static enum Counters {
-    GOOD_MATCHES,
-    BAD_GAME_MODE,
-    BAD_LOBBY,
-    LEAVERS,
-    REAL_MATCH_WITH_LEAVERS,
-    BAD_MATCHES
+    GOOD_MATCHES,  // Number of matches considered 'real'
+    BAD_GAME_MODE, // Number of mathches with discounted due to game_mode
+    BAD_LOBBY,     // Number of matches with a non-real lobby type
+    LEAVERS,       // Number of mathches with leavers
+    REAL_MATCH_WITH_LEAVERS, // Matches valid except for the presence of leavers
+    BAD_MATCHES   // Number  of matches not considered real
   }
 
   @Override
