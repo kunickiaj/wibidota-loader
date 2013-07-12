@@ -99,7 +99,7 @@ public class DotaValuesHistogram extends KijiGatherer{
     for(KeyGenerator kg: MATCH_KEYS){
       context.write(new Text(kg.getKey(input)), ONE);
     }
-    if(rows % 500 == 0){
+    if(rows % 1000 == 0){
       LOG.info("Processes row: " + rows);
     }
   }

@@ -32,7 +32,7 @@ import java.util.Map;
 public final class DotaValues {
 
 
-  private static final String HERO_CSV = ""
+  private static final String HERO_CSV = "";
 
   // This class should not be instantiated
   private DotaValues() {}
