@@ -63,7 +63,7 @@ public class DotaValuesHistogram extends KijiGatherer{
       StringBuilder sb = new StringBuilder();
       sb.append(family + ":" + column + "=" + (value == null ? nullStr : value));
       if(interval != null){
-        Long startTime = row.getMostRecentValue("data", "start_time");
+        Long startTime = row.getMostRecentValue("data"  , "start_time");
         long slot = startTime / interval;
         sb.append(" [" + slot * interval + "-" + (slot + 1) * interval + ")");
       }
@@ -72,7 +72,7 @@ public class DotaValuesHistogram extends KijiGatherer{
   }
 
   private static KeyGenerator[] MATCH_KEYS = new KeyGenerator[]{
-      new ValueByTime("data", "game_mode", 10000L)
+      new ValueByTime("data", "game_mode", 100000L)
    };
 
   @Override
@@ -115,8 +115,8 @@ public class DotaValuesHistogram extends KijiGatherer{
         .withInputTable(KijiURI.newBuilder()
             .withTableName("dota_matches").withInstanceName("wibidota").build())
         .withGatherer(DotaValuesHistogram.class)
-        .withReducer(SumLongsReducer.class)
-        .withCombiner(SumLongsReducer.class)
+//        .withReducer(SumLongsReducer.class)
+//        .withCombiner(SumLongsReducer.class)
         .withOutput(MapReduceJobOutputs.newTextMapReduceJobOutput(new Path("hdfs://localhost:8020/counts"), 1))
          .withConf(new Configuration())
 //         .withStartRow(d.getEntityId("107378376"))

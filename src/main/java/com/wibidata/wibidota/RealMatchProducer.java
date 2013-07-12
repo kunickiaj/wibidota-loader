@@ -105,6 +105,7 @@ public class RealMatchProducer extends KijiProducer {
           producerContext.incrementCounter(Counters.REAL_MATCH_WITH_LEAVERS);
         }
         realMatch = false;
+        break;
       }
     }
 
