@@ -3,6 +3,7 @@ target
 *.iml
 *.jar
 *.json
+*.pyc
 lib
 results
 scripts

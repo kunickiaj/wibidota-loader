@@ -2,7 +2,11 @@ package com.wibidata.wibidota;
 
 import org.kiji.schema.KijiColumnName;
 
+import java.io.*;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 /**
  * (c) Copyright 2013 WibiData, Inc.
@@ -32,7 +36,7 @@ import java.util.Map;
 public final class DotaValues {
 
 
-  private static final String HERO_CSV = "";
+  private static final String HERO_CSV = "com/wibidata/wibidota/heroes.csv";
 
   // This class should not be instantiated
   private DotaValues() {}
@@ -63,10 +67,35 @@ public final class DotaValues {
    */
   public static String getHeroName(int i){
     if(heroNames == null) {
+      ClassLoader.getSystemResourceAsStream("com.wibidata.wibidota/heroes.csv");
+      try {
+        Enumeration e =  ClassLoader.getSystemResources("");
+        while(e.hasMoreElements()){
+          System.out.println(e.nextElement().toString());
+        }
+      } catch (IOException e1) {
+        e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+      }
 
+      InputStreamReader isr =  new InputStreamReader(ClassLoader.getSystemResourceAsStream("com.wibidata.wibidota.heroes.csv"));
+      heroNames = new HashMap<Integer, String>();
+      Scanner s = new Scanner(isr);
+      String line = s.nextLine();
+      while(line != null){
+        int comma = line.indexOf(',');
+        int id = Integer.parseInt(line.substring(0, comma));
+        String name = line.substring(comma + 1);
+        heroNames.put(id, name);
+        line = s.nextLine();
+      }
+      s.close();
+      try {
+        isr.close();
+      } catch (IOException e) {
+        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+      }
     }
     return heroNames.get(i);
-
   }
 
   public static class Towers {
@@ -192,9 +221,9 @@ public final class DotaValues {
     REVERSE_CAPTAINS_MODE(8), GREEVILING(9), TUTORIAL(10), MID_ONLY(11),
     LEAST_PLAYED(12), NEW_PLAYER_POOL(13), COMPENDIUM(14);
 
+    public int getEncoding() { return rawValue; }
     private final int rawValue;
     GameMode(int rawValue) { this.rawValue = rawValue; }
-    public int getEncoding() { return rawValue; }
 
     public static GameMode fromInt(int i){
       return GameMode.values()[i];

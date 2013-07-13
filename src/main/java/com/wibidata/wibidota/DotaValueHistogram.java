@@ -1,6 +1,5 @@
 package com.wibidata.wibidota;
 
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -10,29 +9,27 @@ import org.kiji.mapreduce.gather.GathererContext;
 import org.kiji.mapreduce.gather.KijiGatherJobBuilder;
 import org.kiji.mapreduce.gather.KijiGatherer;
 import org.kiji.mapreduce.output.MapReduceJobOutputs;
-import org.kiji.mapreduce.output.TextMapReduceJobOutput;
-import org.kiji.schema.*;
-import org.kiji.schema.KijiDataRequestBuilder.ColumnsDef;
-import org.kiji.schema.avro.*;
-import org.kiji.schema.layout.KijiTableLayout;
+import org.kiji.schema.KijiRowData;
+import org.kiji.schema.KijiDataRequestBuilder;
+import org.kiji.schema.KijiDataRequest;
+import org.kiji.schema.KijiURI;
+import org.kiji.schema.KijiColumnName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
-public class DotaValuesHistogram extends KijiGatherer{
+public abstract class DotaValueHistogram extends KijiGatherer {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DotaValuesHistogram.class);
-
+  private static final Logger LOG =
+      LoggerFactory.getLogger(DotaValueHistogram.class);
 
   private static final LongWritable ONE = new LongWritable(1);
 
   private static int rows = 0;
 
-  private static interface KeyGenerator {
+  public interface KeyGenerator {
     public String getKey(KijiRowData row) throws IOException;
     public String[] getColumnNames();
   }
@@ -71,22 +68,21 @@ public class DotaValuesHistogram extends KijiGatherer{
     }
   }
 
-  private static KeyGenerator[] MATCH_KEYS = new KeyGenerator[]{
+  private static final KeyGenerator[] KEYS = new KeyGenerator[] {
       new ValueByTime("data", "game_mode", 21600L)
-   };
+  };
 
   @Override
   public KijiDataRequest getDataRequest() {
     KijiDataRequestBuilder builder = KijiDataRequest.builder();
-    ColumnsDef def = builder.newColumnsDef();
+    KijiDataRequestBuilder.ColumnsDef def = builder.newColumnsDef();
     def.withMaxVersions(1);
     HashSet<String> colsAdded = new HashSet<String>();
-    for(KeyGenerator kg : MATCH_KEYS){
+    for(KeyGenerator kg : KEYS){
       for(String s : kg.getColumnNames()){
         if(!colsAdded.contains(s)){
           def.add(new KijiColumnName(s));
           colsAdded.add(s);
-          System.out.println(s);
         }
       }
     }
@@ -94,9 +90,10 @@ public class DotaValuesHistogram extends KijiGatherer{
   }
 
   @Override
-  public void gather(KijiRowData input, GathererContext context) throws IOException {
+  public void gather(KijiRowData input, GathererContext context)
+      throws IOException {
     rows++;
-    for(KeyGenerator kg: MATCH_KEYS){
+    for(KeyGenerator kg: KEYS){
       context.write(new Text(kg.getKey(input)), ONE);
     }
     if(rows % 1000 == 0){
@@ -118,14 +115,13 @@ public class DotaValuesHistogram extends KijiGatherer{
     KijiMapReduceJob job = KijiGatherJobBuilder.create()
         .withInputTable(KijiURI.newBuilder()
             .withTableName("dota_matches").withInstanceName("wibidota").build())
-        .withGatherer(DotaValuesHistogram.class)
-//        .withReducer(SumLongsReducer.class)
-//        .withCombiner(SumLongsReducer.class)
+        .withGatherer(DotaValueHistogram.class)
+        .withReducer(SumLongsReducer.class)
+        .withCombiner(SumLongsReducer.class)
         .withOutput(MapReduceJobOutputs.newTextMapReduceJobOutput(new Path("hdfs://localhost:8020/counts"), 1))
-         .withConf(new Configuration())
-//         .withStartRow(d.getEntityId("107378376"))
-//         .withLimitRow(d.getEntityId("107814591"))
+        .withConf(new Configuration())
         .build();
     job.run();
   }
 }
+
