@@ -114,13 +114,15 @@ public class DotaCheckValues extends KijiGatherer {
 
       DotaValues.LobbyType.fromInt((Integer) kijiRowData.getMostRecentValue("data", "lobby_type"));
       DotaValues.GameMode.fromInt((Integer) kijiRowData.getMostRecentValue("data", "game_mode"));
-      for(String s : new String[]{"cluster", "season", "league_id", "duration",
+      for(String s : new String[]{"cluster", "season", "duration",
           "negative_votes", "positive_votes"}){
         Integer n = kijiRowData.getMostRecentValue("data", s);
         if(n < 0 || n > Integer.MAX_VALUE / 2){
           throw new BadFormat(s);
         }
       }
+      checkInt((Integer) kijiRowData.getMostRecentValue("data", "league_id"), "league_id",
+          0, Integer.MAX_VALUE);
       Players players = kijiRowData.getMostRecentValue("data", "player_data");
       for(Player player : players.getPlayers()){
         DotaValues.LeaverStatus.fromInt(player.getLeaverStatus());
