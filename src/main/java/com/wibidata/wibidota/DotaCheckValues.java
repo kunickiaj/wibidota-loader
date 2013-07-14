@@ -138,8 +138,8 @@ public class DotaCheckValues extends KijiGatherer {
         checkInt(player.getLastHits(), "last_hits");
         checkInt(player.getPlayerSlot(), "player_slot", 0, 256);
         checkInt(player.getLevel(), "level", 0, 25);
-        checkDouble(player.getGoldPerMinute(), "gold_per_minute", 0, 50000);
-        checkDouble(player.getExpPerMinute(), "exp_per_minute", 0, 50000);
+        checkDouble(player.getGoldPerMinute(), "gold_per_minute", 0, 2000000);
+        checkDouble(player.getExpPerMinute(), "exp_per_minute", 0, 2000000);
         List<AbilityUpgrade> aus = player.getAbilityUpgrades();
         checkInt(aus.size(), "ability upgrade size", 0, 25);
         for(AbilityUpgrade au : aus){
