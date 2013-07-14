@@ -45,7 +45,7 @@ public class DotaCheckValues extends KijiGatherer {
   }
 
   public static void checkInt(Integer i, String field){
-    checkInt(i, field, 0, Integer.MAX_VALUE);
+    checkInt(i, field, 0, Integer.MAX_VALUE / 10);
   }
 
   public static void checkInt(Integer i, String field, int min, int max){
