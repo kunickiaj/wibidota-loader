@@ -22,6 +22,8 @@ public class DotaCheckValues extends KijiGatherer {
 
   private static final Logger LOG = LoggerFactory.getLogger(KijiGatherer.class);
 
+  private static LongWritable ONE = new LongWritable(1L);
+
   private static int rows = 0;
 
   private static final String[] TEAMS = new String[]{"dire", "radiant"};
@@ -36,30 +38,35 @@ public class DotaCheckValues extends KijiGatherer {
     }
   }
 
-  public static void checkIntNullable(Integer i, String field){
-    if(i == null){
-      return;
-    }
-    if(i < 0 || i >= Integer.MAX_VALUE){
-      throw new BadFormat(field);
+  public static void checkNull(Object o, String field){
+    if(o == null){
+      throw new BadFormat(field + " was null");
     }
   }
 
   public static void checkInt(Integer i, String field){
-    if(i == null || i < 0 || i >= Integer.MAX_VALUE/10){
-      throw new BadFormat(field);
-    }
+    checkInt(i, field, 0, Integer.MAX_VALUE);
   }
 
   public static void checkInt(Integer i, String field, int min, int max){
-    if(i == null || i < min || i > max){
-      throw new BadFormat(field);
+    checkNull(i, field);
+    if(i == null) {
+      throw new BadFormat(field + " was null");
+    } else if(i < min) {
+      throw new BadFormat(field + " was smaller then " + min);
+    } else if(i > max){
+      throw new BadFormat(field + " was larger then " + min);
     }
   }
 
   public static void checkDouble(Double i, String field, double min, double max){
-    if(i == null || i < min || i >= max){
-      throw new BadFormat(field);
+    checkNull(i, field);
+    if(i == null) {
+      throw new BadFormat(field + " was null");
+    } else if(i < min) {
+      throw new BadFormat(field + " was smaller then " + min);
+    } else if(i > max){
+      throw new BadFormat(field + " was larger then " + min);
     }
   }
 
@@ -94,21 +101,17 @@ public class DotaCheckValues extends KijiGatherer {
   @Override
   public void gather(KijiRowData kijiRowData, GathererContext gathererContext) throws IOException {
     rows++;
-    if(rows % 1000 == 0){
+    if(rows % 2000 == 0){
       LOG.error("Processed row: " + rows);
     }
     try {
       for(String team : TEAMS){
         Integer towerStatus = kijiRowData.getMostRecentValue("data", team + "_towers_status");
-        if(towerStatus < 0 || towerStatus > Math.pow(2, 11)){
-          throw new BadFormat("tower status");
-        }
+        checkInt(towerStatus, team + "_tower_status", 0, ((Double) Math.pow(2, 11)).intValue());
       }
       for(String team : TEAMS){
         Integer raxStatus = kijiRowData.getMostRecentValue("data", team + "_barracks_status");
-        if(raxStatus < 0 || raxStatus > Math.pow(2, 6)){
-          throw new BadFormat("rax status");
-        }
+        checkInt(raxStatus, team + "_barracks_status", 0, ((Double) Math.pow(2, 6)).intValue());
       }
       checkInt((Integer) kijiRowData.getMostRecentValue("data", "human_players"), "human_players", 0, 10);
 
@@ -117,24 +120,22 @@ public class DotaCheckValues extends KijiGatherer {
       for(String s : new String[]{"cluster", "season", "duration",
           "negative_votes", "positive_votes"}){
         Integer n = kijiRowData.getMostRecentValue("data", s);
-        if(n < 0 || n > Integer.MAX_VALUE / 2){
-          throw new BadFormat(s);
-        }
+        checkInt(n, s, 0, Integer.MAX_VALUE / 2);
       }
       checkInt((Integer) kijiRowData.getMostRecentValue("data", "league_id"), "league_id",
           0, Integer.MAX_VALUE);
       Players players = kijiRowData.getMostRecentValue("data", "player_data");
       for(Player player : players.getPlayers()){
         DotaValues.LeaverStatus.fromInt(player.getLeaverStatus());
-        checkInt(player.getAssists(), "assists");
-        checkInt(player.getDeaths(), "deaths");
-        checkInt(player.getDenies(), "denies");
+        checkInt(player.getAssists(), "assists", 0 ,1000);
+        checkInt(player.getDeaths(), "deaths", 0, 1000);
+        checkInt(player.getDenies(), "denies", 0, 5000);
         checkInt(player.getGold(), "gold");
         checkInt(player.getGoldSpent(), "gold_spend");
         checkInt(player.getHeroDamage(), "hero_damage");
         checkInt(player.getHeroHealing(), "hero_healing");
         checkInt(player.getHeroId(), "hero_id", 0, 200);
-        checkInt(player.getKills(), "kills");
+        checkInt(player.getKills(), "kills", 0, 1000);
         checkInt(player.getLastHits(), "last_hits");
         checkInt(player.getPlayerSlot(), "player_slot", 0, 256);
         checkInt(player.getLevel(), "level", 0, 25);
@@ -149,9 +150,7 @@ public class DotaCheckValues extends KijiGatherer {
         }
       }
     } catch (RuntimeException re){
-      System.out.println(kijiRowData.getMostRecentValue("data","match_id"));
-      LOG.info(kijiRowData.getMostRecentValue("data","match_id") + "");
-      throw(re);
+      gathererContext.write(new Text(re.getMessage()), ONE);
     }
   }
 

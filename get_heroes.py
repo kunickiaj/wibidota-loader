@@ -1,4 +1,4 @@
-i"""
+"""
 WibiDota - get_heroes. Get an uptodate list of Dota 2 heroes
 and the mapping to hero_id. 
 Requires environmental variable 'DOTA2_API_KEY' to be set.
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     result = request_heros()
     print("Downloaded: " + str(result['count']) + " heroes")
     f = open(OUTPUT_JSON, 'w')
-    f.write(str(result))
+    f.write(json.dumps(result))
     f.close()
     print("Saved json to: " + OUTPUT_JSON)
 

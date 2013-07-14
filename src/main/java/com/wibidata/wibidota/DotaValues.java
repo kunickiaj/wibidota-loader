@@ -1,5 +1,8 @@
 package com.wibidata.wibidota;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.kiji.schema.KijiColumnName;
 
 import java.io.*;
@@ -35,8 +38,13 @@ import java.util.Scanner;
  */
 public final class DotaValues {
 
+  // Location of resources, should be in the CP
+  private static final String HEROES_JSON = "com/wibidata/wibidota/heroes.json";
 
-  private static final String HERO_CSV = "com/wibidata/wibidota/heroes.csv";
+  private static final String ABILITIES_JSON = "com/wibidata/wibidota/abilities.json";
+
+  private static final String ITEMS_JSON = "com/wibidata/wibidota/items.json";
+
 
   // This class should not be instantiated
   private DotaValues() {}
@@ -44,7 +52,7 @@ public final class DotaValues {
 
   /**
    * Maps the play_slot int as returned by the Dota 2 api to
-   * a more readable form
+   * a more readable form.
    * @param num, the player slot as encoded by the Dota 2 api
    * @return 0-4 for the first-last slots of the Radiant, 5-9 for
    * the first-last slots on the Dire
@@ -57,45 +65,73 @@ public final class DotaValues {
     return slot + (num & 7);
   }
 
+  private static JsonParser PARSER = new JsonParser();
+
   private static Map<Integer, String> heroNames = null;
+
+  private static Map<Integer, String> itemNames = null;
+
+  private static Map<Integer, String> abilityNames = null;
+
+  private static void readIds(Map<Integer, String> map, String filename,
+                              String container, String idField, String nameField){
+    InputStreamReader isr =
+        new InputStreamReader(ClassLoader.getSystemResourceAsStream(filename));
+    Scanner sc = new Scanner(isr).useDelimiter("\\A");
+    JsonObject herosObj = PARSER.parse(sc.next()).getAsJsonObject();
+    try {
+      isr.close();
+      sc.close();
+    } catch (IOException e) {
+      throw new RuntimeException("Error reading heroes.json: " + e.getMessage());
+    }
+    for(JsonElement je : herosObj.get(container).getAsJsonArray()){
+      JsonObject hero = je.getAsJsonObject();
+      map.put(hero.get(idField).getAsInt(),
+          hero.get(nameField).getAsString());
+    }
+  }
 
   /**
    * Translates hero ids to hero names
    *
-   * @param i, the hero's ID
-   * @return The heros name
+   * @param id, the hero's ID
+   * @return The name of the hero with that ID
    */
-  public static String getHeroName(int i){
+  public static String getHeroName(int id){
     if(heroNames == null) {
-      ClassLoader.getSystemResourceAsStream("com.wibidata.wibidota/heroes.csv");
-      try {
-        Enumeration e =  ClassLoader.getSystemResources("");
-        while(e.hasMoreElements()){
-          System.out.println(e.nextElement().toString());
-        }
-      } catch (IOException e1) {
-        e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-      }
-
-      InputStreamReader isr =  new InputStreamReader(ClassLoader.getSystemResourceAsStream("com.wibidata.wibidota.heroes.csv"));
       heroNames = new HashMap<Integer, String>();
-      Scanner s = new Scanner(isr);
-      String line = s.nextLine();
-      while(line != null){
-        int comma = line.indexOf(',');
-        int id = Integer.parseInt(line.substring(0, comma));
-        String name = line.substring(comma + 1);
-        heroNames.put(id, name);
-        line = s.nextLine();
-      }
-      s.close();
-      try {
-        isr.close();
-      } catch (IOException e) {
-        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-      }
+      readIds(heroNames, HEROES_JSON, "heroes", "id", "localized_name");
     }
-    return heroNames.get(i);
+    return heroNames.get(id);
+  }
+
+  /**
+   * Translates item ids to item names
+   *
+   * @param id, the item's ID
+   * @return The name of the item with that ID
+   */
+  public static String getItemName(int id){
+    if(itemNames == null){
+      itemNames = new HashMap<Integer, String>();
+      readIds(itemNames, ITEMS_JSON, "items", "id", "name");
+    }
+    return itemNames.get(id);
+  }
+
+  /**
+   * Translates ability ids to ability names
+   *
+   * @param id, the abilities's ID
+   * @return The name of the abilties with that ID
+   */
+  public static String getAbilityName(int id){
+    if(abilityNames == null){
+      abilityNames = new HashMap<Integer, String>();
+      readIds(abilityNames, ABILITIES_JSON, "abilities", "id", "name");
+    }
+    return abilityNames.get(id);
   }
 
   public static class Towers {
