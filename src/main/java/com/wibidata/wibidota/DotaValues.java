@@ -1,16 +1,3 @@
-package com.wibidata.wibidota;
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import org.kiji.schema.KijiColumnName;
-
-import java.io.*;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
-
 /**
  * (c) Copyright 2013 WibiData, Inc.
  *
@@ -29,6 +16,19 @@ import java.util.Scanner;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package com.wibidata.wibidota;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import org.kiji.schema.KijiColumnName;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
 
 /*
  * Class that can represent raw values held in the dota_matches tables in a more human readable
