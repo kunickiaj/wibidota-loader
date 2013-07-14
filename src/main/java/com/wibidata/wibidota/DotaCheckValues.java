@@ -1,7 +1,6 @@
 package com.wibidata.wibidota;
 
 import com.wibidata.wibidota.avro.AbilityUpgrade;
-import com.wibidata.wibidota.avro.AdditionalUnit;
 import com.wibidata.wibidota.avro.Player;
 import com.wibidata.wibidota.avro.Players;
 import org.apache.hadoop.io.LongWritable;
@@ -50,9 +49,7 @@ public class DotaCheckValues extends KijiGatherer {
 
   public static void checkInt(Integer i, String field, int min, int max){
     checkNull(i, field);
-    if(i == null) {
-      throw new BadFormat(field + " was null");
-    } else if(i < min) {
+   if(i < min) {
       throw new BadFormat(field + " was smaller then " + min);
     } else if(i > max){
       throw new BadFormat(field + " was larger then " + min);
@@ -61,9 +58,7 @@ public class DotaCheckValues extends KijiGatherer {
 
   public static void checkDouble(Double i, String field, double min, double max){
     checkNull(i, field);
-    if(i == null) {
-      throw new BadFormat(field + " was null");
-    } else if(i < min) {
+    if(i < min) {
       throw new BadFormat(field + " was smaller then " + min);
     } else if(i > max){
       throw new BadFormat(field + " was larger then " + min);
@@ -126,6 +121,12 @@ public class DotaCheckValues extends KijiGatherer {
           0, Integer.MAX_VALUE);
       Players players = kijiRowData.getMostRecentValue("data", "player_data");
       for(Player player : players.getPlayers()){
+        Integer n = player.getAccountId();
+        if(n != null){
+          if(n != -1){
+            checkInt(n, "account_id", 0, Integer.MAX_VALUE);
+          }
+        }
         DotaValues.LeaverStatus.fromInt(player.getLeaverStatus());
         checkInt(player.getAssists(), "assists", 0 ,1000);
         checkInt(player.getDeaths(), "deaths", 0, 1000);
