@@ -44,8 +44,8 @@ import java.io.IOException;
 import java.util.HashMap;
 
 /**
- * A Map Reduce job built to gather example matches for each value
- * and columns could take, Currently only works for fields in Player objects,
+ * A Map Reduce job built to gather example matches for each value  and columns could take,
+ * Currently only works for fields in Player objects, Run on the raw JSON encoded data.
  * useful if you need to manually check what values map to what in game events.
  */
 public class DotaGatherExampleValues extends Configured implements Tool {

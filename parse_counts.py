@@ -1,7 +1,9 @@
 """
 WibiDota - parse_counts. Parses the field=value (start_range=end_range) files 
 produced by DotaValuesHistogram. Formats the times, aggregates the values to
-smaller intervals, and prints the data is csv form. 
+smaller intervals, and prints the data is csv form. Can also create a matlibplot
+stacked area plot, but it look horrible. I have had better luck with open's offices
+stacked area plot. 
 """
 
 from os import listdir

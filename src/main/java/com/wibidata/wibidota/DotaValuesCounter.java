@@ -16,7 +16,7 @@
 * limitations under the License.
 */
 
-package com.wibidata.wibidota.dotaloader;
+package com.wibidata.wibidota;
 
 import java.io.IOException;
 import java.util.Set;
@@ -37,6 +37,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.kiji.mapreduce.lib.reduce.LongSumReducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,23 +118,6 @@ public class DotaValuesCounter extends Configured implements Tool {
   }
 
   /**
-    * Reducer class that aggregates counts, should also be used as a
-    * combiner for efficiency.
-    */
-  public static class Add
-      extends Reducer<Text, LongWritable, Text, LongWritable> {
-
-    public void reduce(Text key, Iterable<LongWritable> values, Context context)
-        throws IOException, InterruptedException {
-        long total = 0;
-        for(LongWritable lw : values){
-            total += lw.get();
-        }
-        context.write(key, new LongWritable(total));
-    }
-  }
-
-  /**
    * Runs the job, requires that the gson package is made
    * available to the cluster.
    *
@@ -152,8 +136,8 @@ public class DotaValuesCounter extends Configured implements Tool {
     job.setMapOutputValueClass(LongWritable.class);
 
     job.setMapperClass(Map.class);
-    job.setCombinerClass(Add.class);
-    job.setReducerClass(Add.class);
+    job.setCombinerClass(LongSumReducer.class);
+    job.setReducerClass(LongSumReducer.class);
 
     job.setJarByClass(DotaValuesCounter.class);
 

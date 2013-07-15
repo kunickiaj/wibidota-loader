@@ -58,16 +58,16 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
 
   static final JsonParser PARSER = new JsonParser();
 
-  private static Integer getNullableInt(JsonElement je){
+  public static Integer getNullableInt(JsonElement je){
       return (je == null ? null : je.getAsInt());
   }
 
-  private static Long getNullableLong(JsonElement je){
+  public static Long getNullableLong(JsonElement je){
     return (je == null ? null : je.getAsLong());
   }
 
   // Reads an AbilityUpgrade object from a Map of its fields
-  private AbilityUpgrade extractAbility(JsonObject abilityData){
+  public static AbilityUpgrade extractAbility(JsonObject abilityData){
     return AbilityUpgrade.newBuilder()
             .setLevel(abilityData.get("level").getAsInt())
             .setAbilityId(abilityData.get("ability").getAsInt())
@@ -77,7 +77,7 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
 
   // Reads a list of item_ids from a JSON playerData, assumes
   // the items are encoded as item_0, item_1, ... item_5
-  private List<Integer> readItems(JsonObject items){
+  public static List<Integer> readItems(JsonObject items){
     final List<Integer> itemIds = new ArrayList<Integer>(6);
     for(int i = 0; i < 6; i++){
       itemIds.add(items.get("item_" + i).getAsInt());
@@ -86,7 +86,7 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
   }
 
   // Reads a Player Object from a map of its fields->values
-  private Player extractPlayer(JsonObject playerData){
+  public static Player extractPlayer(JsonObject playerData){
 
     Player.Builder builder = Player.newBuilder();
 
@@ -143,6 +143,14 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
             .build();
   }
 
+  public static Players extractPlayers(JsonObject matchData){
+    final List<Player> matchStats = new ArrayList<Player>(10);
+    for(JsonElement o : matchData.get("players").getAsJsonArray()){
+      matchStats.add(extractPlayer(o.getAsJsonObject()));
+    }
+    return Players.newBuilder().setPlayers(matchStats).build();
+  }
+
 
   @Override
   public void produce(LongWritable filePos, Text line, KijiTableContext context)
@@ -173,11 +181,7 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
           final int humanPlayers = matchData.get("human_players").getAsInt();
 
           // Build and parse the match stats
-          final List<Player> matchStats = new ArrayList<Player>(10);
-          for(JsonElement o : matchData.get("players").getAsJsonArray()){
-              matchStats.add(extractPlayer(o.getAsJsonObject()));
-          }
-          final Players players = Players.newBuilder().setPlayers(matchStats).build();
+          final Players players = extractPlayers(matchData);
 
           EntityId eid = context.getEntityId(matchId + "");
 

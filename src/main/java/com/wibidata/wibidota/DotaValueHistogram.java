@@ -26,6 +26,7 @@ import org.kiji.mapreduce.KijiMapReduceJob;
 import org.kiji.mapreduce.gather.GathererContext;
 import org.kiji.mapreduce.gather.KijiGatherJobBuilder;
 import org.kiji.mapreduce.gather.KijiGatherer;
+import org.kiji.mapreduce.lib.reduce.LongSumReducer;
 import org.kiji.mapreduce.output.MapReduceJobOutputs;
 import org.kiji.schema.KijiRowData;
 import org.kiji.schema.KijiDataRequestBuilder;
@@ -141,8 +142,8 @@ public abstract class DotaValueHistogram extends KijiGatherer {
         .withInputTable(KijiURI.newBuilder()
             .withTableName("dota_matches").withInstanceName("wibidota").build())
         .withGatherer(DotaValueHistogram.class)
-        .withReducer(SumLongsReducer.class)
-        .withCombiner(SumLongsReducer.class)
+        .withReducer(LongSumReducer.class)
+        .withCombiner(LongSumReducer.class)
         .withOutput(MapReduceJobOutputs.newTextMapReduceJobOutput(new Path("hdfs://localhost:8020/counts"), 1))
         .withConf(new Configuration())
         .build();
