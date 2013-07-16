@@ -65,7 +65,6 @@ public class DotaPlayersBulkImporter extends KijiBulkImporter<LongWritable, Text
         if(accountId != null && accountId != -1){
           otherPlayers.remove(i);
           players.setPlayers(otherPlayers);
-          LOG.info("adding: " + accountId);
           EntityId eid = context.getEntityId(accountId + "");
           context.put(eid, "data", "match_id", startTime, matchId);
           context.put(eid, "data", "dire_towers_status", startTime, direTowers);
