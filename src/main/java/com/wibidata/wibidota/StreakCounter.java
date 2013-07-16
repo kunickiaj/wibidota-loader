@@ -19,7 +19,7 @@ import java.util.NavigableMap;
 
 public class StreakCounter extends KijiGatherer {
 
-  private static final int BURN_IN =  30;
+  private static final int BURN_IN =  35;
 
   private static final long MIN = 60;
 
@@ -55,7 +55,7 @@ public class StreakCounter extends KijiGatherer {
     for(Long time : kijiRowData.getTimestamps("data", "game_mode").descendingSet()){
       Integer gameMode = kijiRowData.getValue("data", "game_mode", time);
       if(gameMode > 6 && gameMode != 12 && gameMode != 14){
-        return;
+        break;
       }
       DotaValues.LobbyType lobbyType = DotaValues.
           LobbyType.fromInt((Integer)
@@ -64,7 +64,7 @@ public class StreakCounter extends KijiGatherer {
           lobbyType == DotaValues.LobbyType.TOURNAMENT ||
           lobbyType == DotaValues.LobbyType.TEAM_MATCH ||
           lobbyType == DotaValues.LobbyType.SOLO_QUEUE)){
-        return;
+        break;
       }
       Player self = kijiRowData.getValue("data", "player", time);
       boolean winner = ((Boolean) kijiRowData.getValue("data", "radiant_win", time)) &&
