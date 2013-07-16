@@ -19,7 +19,7 @@ import java.util.NavigableMap;
 
 public class StreakCounter extends KijiGatherer {
 
-  private static final int BURN_IN =  0;
+  private static final int BURN_IN =  30;
 
   private static final long MIN = 60;
 
@@ -80,7 +80,7 @@ public class StreakCounter extends KijiGatherer {
       if(game > BURN_IN){
         for(int i = 0; i < INTERVALS.length; i++){
           if(streaking[i]){
-            String key = "interval=" + INTERVALS[i] + ",score=" + score + ",win," + winner;
+            String key = "interval=" + INTERVALS[i] + ",score=" + score + ",win=" + winner;
             gathererContext.write(new Text(key), ONE);
           }
         }
