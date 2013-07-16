@@ -52,7 +52,6 @@ public class DotaPlayersBulkImporter extends KijiBulkImporter<LongWritable, Text
       final boolean radiantWin = matchData.get("radiant_win").getAsBoolean();
       final int humanPlayers = matchData.get("human_players").getAsInt();
 
-      // Build and parse the match stats
       final Players players = DotaMatchBulkImporter.extractPlayers(matchData);
 
       List<Player> allPlayers = new ArrayList<Player>();
