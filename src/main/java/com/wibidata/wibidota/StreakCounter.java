@@ -19,7 +19,7 @@ import java.util.NavigableMap;
 
 public class StreakCounter extends KijiGatherer {
 
-  private static final int BURN_IN =  30;
+  private static final int BURN_IN =  0;
 
   private static final long MIN = 60;
 
@@ -48,12 +48,11 @@ public class StreakCounter extends KijiGatherer {
 
   @Override
   public void gather(KijiRowData kijiRowData, GathererContext gathererContext) throws IOException {
-    NavigableMap<Long, Boolean> games = kijiRowData.getValues("data", "radiant_win");
     int game = 0;
     int score = 0;
     boolean[] streaking = new boolean[INTERVALS.length];
     long prevTime = 0;
-    for(Long time : kijiRowData.getTimestamps("data", "game_mode")){
+    for(Long time : kijiRowData.getTimestamps("data", "game_mode").descendingSet()){
       Integer gameMode = kijiRowData.getValue("data", "game_mode", time);
       if(gameMode > 6 && gameMode != 12 && gameMode != 14){
         return;
@@ -71,9 +70,21 @@ public class StreakCounter extends KijiGatherer {
       boolean winner = ((Boolean) kijiRowData.getValue("data", "radiant_win", time)) &&
           DotaValues.radiantPlayer(self.getPlayerSlot());
       game++;
-      prevTime = time;
       long diff = time - prevTime -
           ((Number) kijiRowData.getValue("data", "duration", time)).longValue();
+      for(int i = 0; i < INTERVALS.length; i++){
+        if(diff > INTERVALS[i]){
+          streaking[i] = false;
+        }
+      }
+      if(game > BURN_IN){
+        for(int i = 0; i < INTERVALS.length; i++){
+          if(streaking[i]){
+            String key = "interval=" + INTERVALS[i] + ",score=" + score + ",win," + winner;
+            gathererContext.write(new Text(key), ONE);
+          }
+        }
+      }
       if(winner){
         if(score > 0){
           score++;
@@ -89,19 +100,7 @@ public class StreakCounter extends KijiGatherer {
           Arrays.fill(streaking, true);
         }
       }
-      for(int i = 0; i < INTERVALS.length; i++){
-        if(diff > INTERVALS[i]){
-          streaking[i] = false;
-        }
-      }
-      if(game > BURN_IN){
-        for(int i = 0; i < INTERVALS.length; i++){
-          if(streaking[i]){
-            String key = "interval=" + INTERVALS[i] + ",score=" + score;
-            gathererContext.write(new Text(key), ONE);
-          }
-        }
-      }
+      prevTime = time;
     }
   }
 
