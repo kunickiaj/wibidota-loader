@@ -1,2 +1,2 @@
 USE wibidota;
-drop table dota_matches;
+drop table dota_players;

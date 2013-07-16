@@ -50,6 +50,10 @@ public final class DotaValues {
   private DotaValues() {}
 
 
+  public static boolean nonAnonPlayer(Integer playerId){
+    return playerId != null && playerId != -1;
+  }
+
   /**
    * Maps the play_slot int as returned by the Dota 2 api to
    * a more readable form.
@@ -63,6 +67,10 @@ public final class DotaValues {
       slot += 5;
     }
     return slot + (num & 7);
+  }
+
+  public static boolean radiantPlayer(int num){
+    return  (num >> 7 == 0);
   }
 
   private static JsonParser PARSER = new JsonParser();

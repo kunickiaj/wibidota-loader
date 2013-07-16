@@ -14,6 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class DotaPlayersBulkImporter extends KijiBulkImporter<LongWritable, Text> {
 
@@ -52,10 +55,16 @@ public class DotaPlayersBulkImporter extends KijiBulkImporter<LongWritable, Text
       // Build and parse the match stats
       final Players players = DotaMatchBulkImporter.extractPlayers(matchData);
 
-      for(Player player : players.getPlayers()){
+      List<Player> allPlayers = new ArrayList<Player>();
+      List<Player> otherPlayers = new ArrayList<Player>();
+      allPlayers.addAll(players.getPlayers());
+      otherPlayers.addAll(players.getPlayers());
+      for(int i = 0; i < allPlayers.size(); i++){
+        Player player = allPlayers.get(i);
         Integer accountId = player.getAccountId();
-        LOG.info("got: " + accountId);
         if(accountId != null && accountId != -1){
+          otherPlayers.remove(i);
+          players.setPlayers(otherPlayers);
           LOG.info("adding: " + accountId);
           EntityId eid = context.getEntityId(accountId + "");
           context.put(eid, "data", "match_id", startTime, matchId);
@@ -65,7 +74,6 @@ public class DotaPlayersBulkImporter extends KijiBulkImporter<LongWritable, Text
           context.put(eid, "data", "radiant_barracks_status", startTime, radiantBarracks);
           context.put(eid, "data", "cluster", startTime, cluster);
           context.put(eid, "data", "season", startTime, season);
-          context.put(eid, "data", "start_time", startTime, startTime);
           context.put(eid, "data", "match_seq_num", startTime, seqNum);
           context.put(eid, "data", "league_id", startTime, leagueId);
           context.put(eid, "data", "first_blood_time", startTime, firstBloodTime);
@@ -73,10 +81,12 @@ public class DotaPlayersBulkImporter extends KijiBulkImporter<LongWritable, Text
           context.put(eid, "data", "positive_votes", startTime, positiveVotes);
           context.put(eid, "data", "duration", startTime, duration);
           context.put(eid, "data", "radiant_win", startTime, radiantWin);
-          context.put(eid, "data", "player_data", startTime, players);
           context.put(eid, "data", "game_mode", startTime, gameMode);
           context.put(eid, "data", "lobby_type", startTime, lobbyType);
           context.put(eid, "data", "human_players", startTime, humanPlayers);
+          context.put(eid, "data", "other_players", startTime, players);
+          context.put(eid, "data", "player", startTime, player);
+          otherPlayers.add(i, player);
         }
       }
     } catch (RuntimeException re){
