@@ -19,7 +19,7 @@ import java.util.NavigableMap;
 
 public class StreakCounter extends KijiGatherer {
 
-  private static final int BURN_IN =  35;
+  private static final int BURN_IN =  40;
 
   private static final long MIN = 60;
 
@@ -50,17 +50,13 @@ public class StreakCounter extends KijiGatherer {
 
   @Override
   public void gather(KijiRowData kijiRowData, GathererContext gathererContext) throws IOException {
-     if(users > 20){
-       return;
-     }
     int game = 0;
     int score = 0;
-    int wins = 0;
-    int losses = 0;
-    boolean used = false;
     boolean[] streaking = new boolean[INTERVALS.length];
     long prevTime = 0;
     for(Long time : kijiRowData.getTimestamps("data", "game_mode").descendingSet()){
+
+      // Make sure this is a 'serious' game
       Integer gameMode = kijiRowData.getValue("data", "game_mode", time);
       if(gameMode > 6 && gameMode != 12 && gameMode != 14){
         continue;
@@ -74,9 +70,14 @@ public class StreakCounter extends KijiGatherer {
           lobbyType == DotaValues.LobbyType.SOLO_QUEUE)){
         continue;
       }
+
+      // Check if we won
       Player self = kijiRowData.getValue("data", "player", time);
-      boolean winner = ((Boolean) kijiRowData.getValue("data", "radiant_win", time)) &&
-          DotaValues.radiantPlayer(self.getPlayerSlot());
+      boolean radiantWin = (Boolean) kijiRowData.getValue("data", "radiant_win", time);
+      boolean radiantPlayer = DotaValues.radiantPlayer(self.getPlayerSlot());
+      boolean winner = (radiantWin && radiantPlayer) || (!radiantWin && !radiantPlayer);
+
+      // Check what streaks still apply
       game++;
       long diff = time - prevTime -
           ((Number) kijiRowData.getValue("data", "duration", time)).longValue();
@@ -86,12 +87,6 @@ public class StreakCounter extends KijiGatherer {
         }
       }
       if(game > BURN_IN){
-        if(winner){
-          wins++;
-        } else {
-          losses++;
-        }
-        used = true;
         for(int i = 0; i < INTERVALS.length; i++){
           if(streaking[i]){
             String key = "interval=" + INTERVALS[i] + ",score=" + score + ",win=" + winner;
@@ -99,6 +94,8 @@ public class StreakCounter extends KijiGatherer {
           }
         }
       }
+
+      // Update out win counter for the next iteration
       if(winner){
         if(score > 0){
           score++;
@@ -115,11 +112,6 @@ public class StreakCounter extends KijiGatherer {
         }
       }
       prevTime = time;
-    }
-    if(used){
-      gathererContext.write(new Text("a" + kijiRowData.getEntityId().toShellString() +
-          " W: " + wins + " L: " + losses), ONE);
-      users++;
     }
   }
 
