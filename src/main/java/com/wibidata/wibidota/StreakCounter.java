@@ -80,7 +80,7 @@ public class StreakCounter extends KijiGatherer {
       if(game > BURN_IN){
         for(int i = 0; i < INTERVALS.length; i++){
           if(streaking[i]){
-            String key = "interval=" + INTERVALS[i] + ",score=" + score + ",win=" + winner;
+            String key = "id=" + kijiRowData.getEntityId().toString() + ",interval=" + INTERVALS[i] + ",score=" + score + ",win=" + winner;
             gathererContext.write(new Text(key), ONE);
           }
         }
