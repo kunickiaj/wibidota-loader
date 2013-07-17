@@ -46,10 +46,13 @@ public class StreakCounter extends KijiGatherer {
     return builder.addColumns(def).build();
   }
 
+  int users = 0;
+
   @Override
   public void gather(KijiRowData kijiRowData, GathererContext gathererContext) throws IOException {
     int game = 0;
     int score = 0;
+    boolean used = false;
     boolean[] streaking = new boolean[INTERVALS.length];
     long prevTime = 0;
     for(Long time : kijiRowData.getTimestamps("data", "game_mode").descendingSet()){
@@ -78,9 +81,10 @@ public class StreakCounter extends KijiGatherer {
         }
       }
       if(game > BURN_IN){
+        used = true;
         for(int i = 0; i < INTERVALS.length; i++){
           if(streaking[i]){
-            String key = "id=" + kijiRowData.getEntityId().toString() + ",interval=" + INTERVALS[i] + ",score=" + score + ",win=" + winner;
+            String key = "interval=" + INTERVALS[i] + ",score=" + score + ",win=" + winner;
             gathererContext.write(new Text(key), ONE);
           }
         }
