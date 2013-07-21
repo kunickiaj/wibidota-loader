@@ -1,15 +1,14 @@
 USE wibidota;
-CREATE TABLE dota_matches
-ROW KEY FORMAT HASH PREFIXED(1)
+CREATE TABLE dota_matches WITH DESCRIPTION 'Dota 2 match statistics'
+ROW KEY FORMAT (match_id LONG, HASH(SIZE=1))
 PROPERTIES (NUMREGIONS = 4)
 WITH LOCALITY GROUP match_data (
   MAXVERSIONS = INFINITY,
   TTL = FOREVER,
   INMEMORY = false,
   COMPRESSED WITH GZIP,
-  FAMILY data (
-          match_id "long",
-          dire_towers_status "int",
+  FAMILY data WITH DESCRIPTION 'raw data collected from the Dota 2 web API' (
+          dire_towers_status "int", 
           radiant_towers_status "int",
           dire_barracks_status "int",
           radiant_barracks_status "int",
@@ -30,3 +29,4 @@ WITH LOCALITY GROUP match_data (
   ),
   MAP TYPE FAMILY derived_data "double"
 );
+
