@@ -41,22 +41,29 @@ if __name__ == "__main__":
       place = 1
     data_by_interval[value['interval']][value['score']][place] += value['value']
   
-  for interval, scores in data_by_interval.iteritems():
+  for interval, scores in sorted(data_by_interval.iteritems()):
     print("*" * 10 + " INTERVAL: " + str(interval / 60) + " " + "*" * 10)
     for score, (won, loss) in sorted(scores.iteritems(), key = lambda x : int(x[0])):
-      scores[score] = float(won) / float(loss + won)
       print(str(score) + " " + str((won, loss)))
 
-  exit()
-  for interval, scores in data_by_interval.iteritems():
+
+  lines = []
+  labels = []
+  for interval, scores in sorted(data_by_interval.iteritems()):
+    if(interval != 60 * 15):
+      continue
     x = []
     y=  []
-    for score, winrate in scores.iteritems():
+    for score, (won, loss)  in sorted(scores.iteritems()):
+      if( (won + loss) < 1000) or abs(score) > 5:
+        continue
       x.append(score)
-      y.append(winrate)
-    plt.plot(x ,y)
-    plt.ylabel("win rate")
-    plt.xlabel("games won/lost")
-    plt.title("win rates vs time, game distance: " + str(interval/60) + " minutes")
-    plt.show()
-    raw_input()
+#      y.append( won + loss)
+      y.append(float(won) / float(won + loss))
+    l, = plt.plot(x ,y)
+    lines.append(l)
+    labels.append("Game Distance = " + str(interval/60) + " minutes")
+  plt.ylabel("win rate")
+  plt.xlabel("games won/lost")
+  plt.legend(lines, labels, fontsize=8)
+  plt.show()

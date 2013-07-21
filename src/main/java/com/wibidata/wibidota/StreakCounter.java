@@ -54,6 +54,7 @@ public class StreakCounter extends KijiGatherer {
     int score = 0;
     boolean[] streaking = new boolean[INTERVALS.length];
     long prevTime = 0;
+
     for(Long time : kijiRowData.getTimestamps("data", "game_mode").descendingSet()){
 
       // Make sure this is a 'serious' game
@@ -86,6 +87,8 @@ public class StreakCounter extends KijiGatherer {
           streaking[i] = false;
         }
       }
+
+      // Write updates for the streaks we are tracking
       if(game > BURN_IN){
         for(int i = 0; i < INTERVALS.length; i++){
           if(streaking[i]){

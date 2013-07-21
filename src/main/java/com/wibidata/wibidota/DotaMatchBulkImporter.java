@@ -53,8 +53,8 @@ import com.google.gson.JsonParser;
  * The result will be a HFile that can then be bulk-loaded into Kiji
  */
 public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> {
+
   private static final Logger LOG = LoggerFactory.getLogger(DotaMatchBulkImporter.class);
-  /** {@inheritDoc} */
 
   static final JsonParser PARSER = new JsonParser();
 
@@ -183,10 +183,9 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
           // Build and parse the match stats
           final Players players = extractPlayers(matchData);
 
-          EntityId eid = context.getEntityId(matchId + "");
+          EntityId eid = context.getEntityId(matchId);
 
           // Produce all our data
-          context.put(eid, "data", "match_id", startTime, matchId);
           context.put(eid, "data", "dire_towers_status", startTime, direTowers);
           context.put(eid, "data", "radiant_towers_status", startTime, radiantTowers);
           context.put(eid, "data", "dire_barracks_status", startTime, direBarracks);

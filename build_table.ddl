@@ -1,6 +1,6 @@
 USE wibidota;
-CREATE TABLE dota_matches
-ROW KEY FORMAT HASH PREFIXED(1)
+CREATE TABLE dota_matches WITH DESCRIPTION 'dota 2 match statistics'
+ROW KEY FORMAT (match_id LONG, HASH(SIZE=1))
 PROPERTIES (NUMREGIONS = 64)
 WITH LOCALITY GROUP match_data (
   MAXVERSIONS = INFINITY,
@@ -8,7 +8,6 @@ WITH LOCALITY GROUP match_data (
   INMEMORY = false,
   COMPRESSED WITH SNAPPY,
   FAMILY data (
-          match_id "long",
           dire_towers_status "int",
           radiant_towers_status "int",
           dire_barracks_status "int",
