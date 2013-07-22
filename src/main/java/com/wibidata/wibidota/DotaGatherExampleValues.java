@@ -84,7 +84,8 @@ public class DotaGatherExampleValues extends Configured implements Tool {
                 for (JsonElement playerElem : matchData.get("players").getAsJsonArray()) {
                     JsonObject playerData = playerElem.getAsJsonObject();
                     JsonElement fieldValue = playerData.get(FIELD);
-                    String fieldStr = (fieldValue == null ? NULL_STR : fieldValue.getAsString());
+                    String fieldStr = (fieldValue == null ?
+                        NULL_STR : fieldValue.getAsString());
                     if(VALUES_SENT.get(fieldStr) == null){
                         VALUES_SENT.put(fieldStr, 1);
                         context.write(new Text(fieldStr), value);

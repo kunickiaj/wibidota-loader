@@ -257,6 +257,10 @@ public final class DotaValues {
     }
   }
 
+  /**
+   * Utility enum for the column in dota_matches table, the columns names are
+   * expected to remain consistent so use of this enum is optional.
+   */
   public static enum Columns {
     DIRE_TOWERS_STATUS("dire_tower_staus"),
     RADIANT_TOWERS_STATUS("radiant_tower_status"),
@@ -285,6 +289,9 @@ public final class DotaValues {
 
   // ***** enums used in Dota 2. ADDITIONAL ENUMS COULD BE ADDED AS DOTA 2 CHANGES *****
 
+  /**
+   * Enum for the different modes a game can be played at
+   */
   public static enum GameMode {
     UNKNOWN_ZERO(0), ALL_PICK(1), CAPTAINS_MODE(2), RANDOM_DRAFT(3),
     SINGLE_DRAFT(4), ALL_RANDOM(5), UNKOWN_SIX(6), THE_DIRETIDE(7),
@@ -304,6 +311,9 @@ public final class DotaValues {
     }
   }
 
+  /**
+   * Enum for the lobbies (places a player can queue for a match) in Dota 2
+   */
   public static enum LobbyType {
     INVALID(-1), PUBLIC_MATCHMAKING(0), PRACTICE(1), TOURNAMENT(2), TUTORIAL(3),
     CO_OP_WITH_BOTS(4), TEAM_MATCH(5), SOLO_QUEUE(6);
@@ -313,6 +323,7 @@ public final class DotaValues {
     public int getEncoding() { return rawValue; }
 
     public static LobbyType fromInt(Integer i){
+
       return LobbyType.values()[i + 1];
     }
 
@@ -326,6 +337,9 @@ public final class DotaValues {
 
   }
 
+  /**
+   * Enum for the various leaver statuses a player can get
+   */
   public static enum LeaverStatus {
     STAYED(0), SAFE_ABANDON(1), DISCONNECT_ABANDON(2), ABANDON(3), ABANDON_AND_RECONNECT(4),
     UNKOWN_FIVE(6), UNKNOWN_SIX(7), BOT(null);
@@ -339,6 +353,9 @@ public final class DotaValues {
     }
   }
 
+  /**
+   * Enum for the item slots an item can occupy
+   */
   public static enum ItemSlot {
     TOP_LEFT(0), TOP_CENTER(1), TOP_RIGHT(2), BOT_RIGHT(3),
     BOT_CENTER(4), BOT_LEFT(5);

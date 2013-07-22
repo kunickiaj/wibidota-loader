@@ -44,7 +44,7 @@ import com.google.gson.JsonParser;
  *
  * <p>Input files should contain JSON data representing a single match. The JSON
  * is expected to follow the API found at http://dev.dota2.com/showthread.php?t=58317.
- * A few exceptions are allowed
+ * A few exceptions are allowed.
  *
  * <pre>
  * { "user_id" : "0", "play_time" : "1325725200000", "song_id" : "1" }
@@ -58,15 +58,32 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
 
   static final JsonParser PARSER = new JsonParser();
 
+  /**
+   * Gets an Integer from a JsonElement that might be null.
+   *
+   * @param je, nullable,element to extract the int from.
+   * @return the (possibly null) integer.
+   */
   public static Integer getNullableInt(JsonElement je){
       return (je == null ? null : je.getAsInt());
   }
 
+  /**
+   * Get a Long from a JsonElement that might be null.
+   *
+   * @param je, nullable element to extract.
+   * @return the possibly null Long.
+   */
   public static Long getNullableLong(JsonElement je){
     return (je == null ? null : je.getAsLong());
   }
 
-  // Reads an AbilityUpgrade object from a Map of its fields
+  /**
+   * Extracts an AbilityUpgrade object from a JsonObject.
+   *
+   * @param abilityData, the JsonObject.
+   * @return an AbilityUgrade object with abilityData's content.
+   */
   public static AbilityUpgrade extractAbility(JsonObject abilityData){
     return AbilityUpgrade.newBuilder()
             .setLevel(abilityData.get("level").getAsInt())
@@ -75,8 +92,13 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
             .build();
   }
 
-  // Reads a list of item_ids from a JSON playerData, assumes
-  // the items are encoded as item_0, item_1, ... item_5
+  /**
+   * Reads an array of ints from a json object by reading
+   * item stored in fields item_0, item_2, ... item_5
+   *
+   * @param items, object containing the item.
+   * @return the List of items
+   */
   public static List<Integer> readItems(JsonObject items){
     final List<Integer> itemIds = new ArrayList<Integer>(6);
     for(int i = 0; i < 6; i++){
@@ -85,7 +107,9 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
     return itemIds;
   }
 
-  // Reads a Player Object from a map of its fields->values
+  /**
+   * Reads a Player from a JsonObject.
+   */
   public static Player extractPlayer(JsonObject playerData){
 
     Player.Builder builder = Player.newBuilder();
@@ -143,6 +167,9 @@ public class DotaMatchBulkImporter extends KijiBulkImporter<LongWritable, Text> 
             .build();
   }
 
+  /**
+   * Reads a list of Players from a JsonObject
+   */
   public static Players extractPlayers(JsonObject matchData){
     final List<Player> matchStats = new ArrayList<Player>(10);
     for(JsonElement o : matchData.get("players").getAsJsonArray()){

@@ -12,8 +12,15 @@ import org.kiji.schema.KijiRowData;
 import java.io.IOException;
 import java.util.Arrays;
 
+/**
+ * Class to gather statistics about a player's likelihood to win or lose a match
+ * depending on the number of matches won or lost in a row before. Gather's this data
+ * for multiple ranges of time between matches.
+ */
+// TODO: Should case some of this work in the derived_data column
 public class StreakCounter extends KijiGatherer {
 
+  // We discards a player's first n matches
   private static final int BURN_IN =  40;
 
   private static final long MIN = 60;

@@ -19,7 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- *
+ *  Class to bulk-import data into the dota_players table from the raw Json files.
  */
 public class DotaPlayersBulkImporter extends KijiBulkImporter<LongWritable, Text> {
 
