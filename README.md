@@ -19,7 +19,10 @@ Currently the table is built with 64 regions. If you want to use a different num
 The data can then be ported to this table using DotaMatchesBulkImporter.java. 
 
 ```
-kiji bulk-import --importer=com.wibidata.wibidota.DotaMatchBulkImporter --input="format=text file=hdfs://path/to/matches/json" --output="format=hfile file=hdfs://path/to/tmp/file nsplits=64 table=kiji://.env/wibidota/dota_matches" --lib={WIBIDOTA_HOME}/target/lib
+kiji bulk-import --importer=com.wibidata.wibidota.DotaMatchBulkImporter \
+  --input="format=text file=hdfs://path/to/matches/json" \
+  --output="format=hfile file=hdfs://path/to/tmp/file nsplits=64 table=kiji://.env/wibidota/dota_matches" \
+  --lib={WIBIDOTA_HOME}/target/lib
 kiji bulk-load --table=kiji://.env/wibidota/dota_matches --hfile=hdfs://path/to/tmp/file
 ```
 
