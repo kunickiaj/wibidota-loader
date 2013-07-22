@@ -136,18 +136,5 @@ public abstract class DotaValueHistogram extends KijiGatherer {
   public Class<?> getOutputValueClass() {
     return LongWritable.class;
   }
-
-  public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
-    KijiMapReduceJob job = KijiGatherJobBuilder.create()
-        .withInputTable(KijiURI.newBuilder()
-            .withTableName("dota_matches").withInstanceName("wibidota").build())
-        .withGatherer(DotaValueHistogram.class)
-        .withReducer(LongSumReducer.class)
-        .withCombiner(LongSumReducer.class)
-        .withOutput(MapReduceJobOutputs.newTextMapReduceJobOutput(new Path("hdfs://localhost:8020/counts"), 1))
-        .withConf(new Configuration())
-        .build();
-    job.run();
-  }
 }
 

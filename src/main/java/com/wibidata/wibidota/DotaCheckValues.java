@@ -36,7 +36,8 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Sanity checks the value in the dota_matches table. Outs puts a list of
+ * Sanity checks the values in the dota_matches table. Outs puts a list of
+ * 'bad_values' of the form:
  *
  * <Field> <type of Error>  <Number of occurances>
  */
@@ -44,33 +45,34 @@ public class DotaCheckValues extends KijiGatherer {
 
   private static final Logger LOG = LoggerFactory.getLogger(KijiGatherer.class);
 
+  // Cache this
   private static LongWritable ONE = new LongWritable(1L);
 
+  // Rows seen so far
   private static int rows = 0;
 
+  // List of team prefixes for fields that are team based
   private static final String[] TEAMS = new String[]{"dire", "radiant"};
 
-  private static final String[] INT_MATCHES = new String[]{
-      "cluster", "season", "league_id", "first_blood_time"
-  };
-
-  public static class BadFormat extends RuntimeException {
+  // Exception to throw if a field is not formatted correcly
+  private static class BadFormat extends RuntimeException {
     public BadFormat(String msg){
       super(msg);
     }
   }
 
-  public static void checkNull(Object o, String field){
+  // @throws BadFormat if o is null
+  private static void checkNull(Object o, String field){
     if(o == null){
       throw new BadFormat(field + " was null");
     }
   }
 
-  public static void checkInt(Integer i, String field){
+  private static void checkInt(Integer i, String field){
     checkInt(i, field, 0, Integer.MAX_VALUE / 10);
   }
 
-  public static void checkInt(Integer i, String field, int min, int max){
+  private static void checkInt(Integer i, String field, int min, int max){
     checkNull(i, field);
    if(i < min) {
       throw new BadFormat(field + " was smaller then " + min);
@@ -79,7 +81,7 @@ public class DotaCheckValues extends KijiGatherer {
     }
   }
 
-  public static void checkDouble(Double i, String field, double min, double max){
+  private static void checkDouble(Double i, String field, double min, double max){
     checkNull(i, field);
     if(i < min) {
       throw new BadFormat(field + " was smaller then " + min);

@@ -31,10 +31,15 @@ import java.util.Map;
 import java.util.Scanner;
 
 /*
- * Class that can represent raw values held in the dota_matches tables in a more human readable
- * way. NOTE this should be relatively stable but changes might occur if Valve changes their
- * API. In particular additional enum may be added as more game modes or lobby types are
+ * Class that can represent raw values held in the dota_matches tables in a more readable
+ * ways. NOTE this should be relatively stable but changes might occur if Valve changes their
+ * API. In particular additional enums may be added as more game modes or lobby types are
  * introduced.
+ */
+/*
+ * Note some of these, in particular tower, barracks, and item_slots are untested. Also note
+ * item, hero, and abilities mapping are only as accurate as the provided files. Both the
+ * item and abilities files were provided by third parties and are unconfirmed.
  */
 public final class DotaValues {
 
@@ -46,17 +51,24 @@ public final class DotaValues {
   private static final String ITEMS_JSON = "com/wibidata/wibidota/items.json";
 
 
-  // This class should not be instantiated
+  // This utility class should not be instantiated
   private DotaValues() {}
 
 
-  public static boolean nonAnonPlayer(Integer playerId){
-    return playerId != null && playerId != -1;
+  /**
+   * Checks if an accountId indicates an anonomous player
+   *
+    * @param accountId, the accountId
+   * @return true iff that player is non anonous
+   */
+  public static boolean nonAnonPlayer(Integer accountId){
+    return accountId != null && accountId != -1;
   }
 
   /**
    * Maps the play_slot int as returned by the Dota 2 api to
    * a more readable form.
+   *
    * @param num, the player slot as encoded by the Dota 2 api
    * @return 0-4 for the first-last slots of the Radiant, 5-9 for
    * the first-last slots on the Dire
@@ -69,10 +81,15 @@ public final class DotaValues {
     return slot + (num & 7);
   }
 
+  /**
+   * @param num, the raw player_slot number
+   * @return true iff that player was on the radiant
+   */
   public static boolean radiantPlayer(int num){
     return  (num >> 7 == 0);
   }
 
+  // Lazily-loaded mapping for hero, items, and ability names
   private static JsonParser PARSER = new JsonParser();
 
   private static Map<Integer, String> heroNames = null;
@@ -81,19 +98,20 @@ public final class DotaValues {
 
   private static Map<Integer, String> abilityNames = null;
 
+  // Translate json records into maps
   private static void readIds(Map<Integer, String> map, String filename,
                               String container, String idField, String nameField){
     InputStreamReader isr =
         new InputStreamReader(ClassLoader.getSystemResourceAsStream(filename));
     Scanner sc = new Scanner(isr).useDelimiter("\\A");
-    JsonObject herosObj = PARSER.parse(sc.next()).getAsJsonObject();
+    JsonObject heroesObj = PARSER.parse(sc.next()).getAsJsonObject();
     try {
       isr.close();
       sc.close();
     } catch (IOException e) {
       throw new RuntimeException("Error reading heroes.json: " + e.getMessage());
     }
-    for(JsonElement je : herosObj.get(container).getAsJsonArray()){
+    for(JsonElement je : heroesObj.get(container).getAsJsonArray()){
       JsonObject hero = je.getAsJsonObject();
       map.put(hero.get(idField).getAsInt(),
           hero.get(nameField).getAsString());
@@ -142,6 +160,10 @@ public final class DotaValues {
     return abilityNames.get(id);
   }
 
+  /**
+   * Represents Dota 2 towers for one team, can be constructed
+   * with the raw int stored in the dota_matches table.
+   */
   public static class Towers {
 
     private final boolean[] towers;
@@ -198,6 +220,11 @@ public final class DotaValues {
     }
   }
 
+
+  /**
+   * Reresents the state of one team's Barracks. Can be constucted from
+   * the raw integer stored in the dota_matches table.
+   */
   public static class Barracks {
 
     private final boolean[] barracks;
@@ -231,7 +258,6 @@ public final class DotaValues {
   }
 
   public static enum Columns {
-    MATCH_ID("match_id"),
     DIRE_TOWERS_STATUS("dire_tower_staus"),
     RADIANT_TOWERS_STATUS("radiant_tower_status"),
     CLUSTER("cluster"),
@@ -272,6 +298,10 @@ public final class DotaValues {
     public static GameMode fromInt(int i){
       return GameMode.values()[i];
     }
+
+    public static boolean seriousGame(GameMode gameMode){
+      return gameMode.rawValue < 6 || gameMode == COMPENDIUM || gameMode == LEAST_PLAYED;
+    }
   }
 
   public static enum LobbyType {
@@ -285,6 +315,14 @@ public final class DotaValues {
     public static LobbyType fromInt(Integer i){
       return LobbyType.values()[i + 1];
     }
+
+    public static boolean seriousLobby(LobbyType lobbyType){
+      return lobbyType == LobbyType.PUBLIC_MATCHMAKING ||
+          lobbyType == LobbyType.TOURNAMENT ||
+          lobbyType == LobbyType.TEAM_MATCH ||
+          lobbyType == LobbyType.SOLO_QUEUE;
+    }
+
 
   }
 

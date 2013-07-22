@@ -46,22 +46,13 @@ import java.util.HashMap;
 /**
  * A Map Reduce job built to gather example matches for each value  and columns could take,
  * Currently only works for fields in Player objects, Run on the raw JSON encoded data.
- * useful if you need to manually check what values map to what in game events.
+ * Useful if you need to manually check what values map to what in game events.
  */
 public class DotaGatherExampleValues extends Configured implements Tool {
     private static final Logger LOG = LoggerFactory.getLogger(DotaGatherExampleValues.class);
 
     static enum Counters {
         MALFORMED_MATCH_LINES
-    }
-
-    // Get more human-readable player slot numbers
-    public static int playerSlot(int bits){
-      int slot = 0;
-      if(bits >> 7 == 1){
-        slot += 5;
-      }
-      return slot + (bits & 7)  + 1;
     }
 
     // Maximum number of examples to print per a value
@@ -155,7 +146,7 @@ public class DotaGatherExampleValues extends Configured implements Tool {
                         if(key.toString().equals(fieldValue)){
                             summaryString.append("Match: " + matchId + " player: " +
                                     playerData.get("player_slot").getAsInt() + " (" +
-                                    playerSlot(playerData.get("player_slot").getAsInt()) + ")\n");
+                                    DotaValues.playerSlot(playerData.get("player_slot").getAsInt()) + ")\n");
                             break;
                         }
                     }

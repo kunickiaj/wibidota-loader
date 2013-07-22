@@ -29,4 +29,3 @@ WITH LOCALITY GROUP match_data (
   ),
   MAP TYPE FAMILY derived_data "double"
 );
-

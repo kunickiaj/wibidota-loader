@@ -44,7 +44,7 @@ import com.google.gson.JsonParser;
  *
  * <p>Input files should contain JSON data representing a single match. The JSON
  * is expected to follow the API found at http://dev.dota2.com/showthread.php?t=58317.
- * A few exceptions are allowed (TODO document them)
+ * A few exceptions are allowed
  *
  * <pre>
  * { "user_id" : "0", "play_time" : "1325725200000", "song_id" : "1" }

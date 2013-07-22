@@ -45,18 +45,17 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Creates add a 'real_match' column to the derived data field that is 1.0 iff the match is a
+ * Adds a 'serious_match' column to the derived data field that is 1.0 iff the match is a
  * a public mathmaking, tournament, team_match, solo_queue game played with game modes
- * AP, CP, AR, RD, LP, or Compendium and has no leavers.
- *
+ * AP, CP, AR, RD, LP, or Compendium and has no leavers. Timestamp is always 0.
  */
-public class RealMatchProducer extends KijiProducer {
+public class SeriousMatchProducer extends KijiProducer {
 
-  private static final Logger LOG = LoggerFactory.getLogger(RealMatchProducer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SeriousMatchProducer.class);
 
   static enum Counters {
     GOOD_MATCHES,  // Number of matches considered 'real'
-    BAD_GAME_MODE, // Number of mathches with discounted due to game_mode
+    BAD_GAME_MODE, // Number of mathes with discounted due to game_mode
     BAD_LOBBY,     // Number of matches with a non-real lobby type
     LEAVERS,       // Number of mathches with leavers
     REAL_MATCH_WITH_LEAVERS, // Matches valid except for the presence of leavers
@@ -83,17 +82,16 @@ public class RealMatchProducer extends KijiProducer {
   @Override
   public void produce(KijiRowData kijiRowData, ProducerContext producerContext) throws IOException {
     boolean realMatch = true;
+
+    // Check if this match passes
     int gameMode = (Integer) kijiRowData.getMostRecentCell("data", "game_mode").getData();
-    if(gameMode > 6 && gameMode != 12 && gameMode != 14){
+    if(!DotaValues.GameMode.seriousGame(DotaValues.GameMode.fromInt(gameMode))){
       producerContext.incrementCounter(Counters.BAD_GAME_MODE);
       realMatch = false;
     }
     Integer o = kijiRowData.getMostRecentValue("data", "lobby_type");
     LobbyType lobbyType = LobbyType.fromInt(o);
-    if(!(lobbyType == LobbyType.PUBLIC_MATCHMAKING ||
-        lobbyType == LobbyType.TOURNAMENT ||
-        lobbyType == LobbyType.TEAM_MATCH ||
-        lobbyType == LobbyType.SOLO_QUEUE)){
+    if(!LobbyType.seriousLobby(lobbyType)){
       producerContext.incrementCounter(Counters.BAD_LOBBY);
       realMatch = false;
     }
@@ -110,20 +108,12 @@ public class RealMatchProducer extends KijiProducer {
       }
     }
 
+    // Write the result
     if(realMatch){
       producerContext.incrementCounter(Counters.GOOD_MATCHES);
-      producerContext.put("real_match", 0L, 1.0);
+      producerContext.put("serious_match", 0L, 1.0);
     } else {
       producerContext.incrementCounter(Counters.BAD_MATCHES);
     }
-  }
-
-  public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
-    RealMatchProducer rp = new RealMatchProducer();
-    KijiProduceJobBuilder builder = KijiProduceJobBuilder.create();
-    builder.withProducer(RealMatchProducer.class).withInputTable(KijiURI.newBuilder()
-          .withTableName("dota_matches").withInstanceName("wibidota").build())
-          .withConf(rp.getConf());
-    builder.build().run();
   }
 }

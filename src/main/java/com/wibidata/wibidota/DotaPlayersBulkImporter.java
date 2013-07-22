@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ *
+ */
 public class DotaPlayersBulkImporter extends KijiBulkImporter<LongWritable, Text> {
 
   private static final Logger LOG = LoggerFactory.getLogger(DotaPlayersBulkImporter.class);
@@ -29,7 +32,7 @@ public class DotaPlayersBulkImporter extends KijiBulkImporter<LongWritable, Text
     throws IOException {
 
     try {
-      // Parse the JSON and wrap a JSONplayerData over it
+      // Parse the JSON
       final JsonObject matchData = PARSER.parse(line.toString()).getAsJsonObject();
 
       // Collect the values we need

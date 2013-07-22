@@ -5,17 +5,12 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.kiji.mapreduce.gather.GathererContext;
 import org.kiji.mapreduce.gather.KijiGatherer;
-import org.kiji.mapreduce.tools.KijiGather;
-import org.kiji.schema.KijiColumnName;
 import org.kiji.schema.KijiDataRequest;
 import org.kiji.schema.KijiDataRequestBuilder;
 import org.kiji.schema.KijiRowData;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.NavigableMap;
 
 public class StreakCounter extends KijiGatherer {
 
@@ -45,8 +40,6 @@ public class StreakCounter extends KijiGatherer {
         .add("data", "player");
     return builder.addColumns(def).build();
   }
-
-  int users = 0;
 
   @Override
   public void gather(KijiRowData kijiRowData, GathererContext gathererContext) throws IOException {

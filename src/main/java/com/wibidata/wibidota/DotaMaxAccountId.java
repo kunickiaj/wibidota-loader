@@ -44,7 +44,7 @@ import java.util.HashMap;
 
 /**
  * A Map Reduce job built to find the maximum value the 'account id' field can take in the
- * raw  dota-matches JSON
+ * raw  dota-matches JSON excluding anonmous accounts
  */
 public class DotaMaxAccountId extends Configured implements Tool {
     private static final Logger LOG = LoggerFactory.getLogger(DotaMaxAccountId.class);
