@@ -61,7 +61,6 @@ public class DotaCheckValues extends KijiGatherer {
     }
   }
 
-  // @throws BadFormat if o is null
   private static void checkNull(Object o, String field){
     if(o == null){
       throw new BadFormat(field + " was null");
@@ -121,7 +120,7 @@ public class DotaCheckValues extends KijiGatherer {
   @Override
   public void gather(KijiRowData kijiRowData, GathererContext gathererContext) throws IOException {
     rows++;
-    if(rows % 2000 == 0){
+    if(rows % 5000 == 0){
       LOG.error("Processed row: " + rows);
     }
     try {
