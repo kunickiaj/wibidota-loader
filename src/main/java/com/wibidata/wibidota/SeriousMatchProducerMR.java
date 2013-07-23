@@ -49,7 +49,7 @@ import java.util.List;
  * a public mathmaking, tournament, team_match, solo_queue game played with game modes
  * AP, CP, AR, RD, LP, or Compendium and has no leavers. Timestamp is always 0.
  */
-public class SeriousMatchProducer extends KijiProducer {
+public class SeriousMatchProducerMR extends KijiProducer {
 
   private static final Logger LOG = LoggerFactory.getLogger(SeriousMatchProducer.class);
 
