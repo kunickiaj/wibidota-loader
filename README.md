@@ -19,7 +19,10 @@ Currently the table is built with 64 regions. If you want to use a different num
 The data can then be ported to this table using DotaMatchesBulkImporter.java. 
 
 ```
-kiji bulk-import --importer=com.wibidata.wibidota.DotaMatchBulkImporter --input="format=text file=hdfs://path/to/matches/json" --output="format=hfile file=hdfs://path/to/tmp/file nsplits=64 table=kiji://.env/wibidota/dota_matches" --lib={WIBIDOTA_HOME}/target/lib
+kiji bulk-import --importer=com.wibidata.wibidota.DotaMatchBulkImporter \
+  --input="format=text file=hdfs://path/to/matches/json" \
+  --output="format=hfile file=hdfs://path/to/tmp/file nsplits=64 table=kiji://.env/wibidota/dota_matches" \
+  --lib={WIBIDOTA_HOME}/target/lib
 kiji bulk-load --table=kiji://.env/wibidota/dota_matches --hfile=hdfs://path/to/tmp/file
 ```
 
@@ -34,7 +37,14 @@ Data can be imported to this table using com.wibidata.wibidota.DotaPlayersBulkIm
 Interpreting the Data
 -------
 
-Both the matches and players table store the data in a raw form as it was gathered from the Dota API. There is one notable exception, we store account_ids as 32bit signed ints where as Valve stores them as 32bit unsigned ints. As a consequence some of our account_ids may be negative, however thus far this is only the case for account_ids that Valve has set to 0xFFFFFFFF to indicate anonymous accounts (in the table these accounts will have an id of -1). The utility class DotaValues.java contains methods for translating the raw data into more human readable form, including mapping the integer ids for abilities, items, and heroes into there respective names. It depends, and is only as accurate as, the json files in src/main/resources.
+Both the matches and players table store the data in a raw form as it was gathered from the Dota API. 
+There is one notable exception, we store account_ids as 32bit signed ints where as Valve stores 
+them as 32bit unsigned ints. As a consequence some of our account_ids may be negative, however 
+thus far this is only the case for account_ids that Valve has set to 0xFFFFFFFF to indicate 
+anonymous accounts (in the table these accounts will have an id of -1). The utility class 
+DotaValues.java contains methods for translating the raw data into more human readable form, 
+including mapping the integer ids for abilities, items, and heroes into there respective names. 
+It depends on, and is only as accurate as, the json files in src/main/resources.
 
 
 
