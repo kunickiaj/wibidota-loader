@@ -51,7 +51,7 @@ import java.util.List;
  */
 public class SeriousMatchProducerMR extends KijiProducer {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SeriousMatchProducer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SeriousMatchProducerMR.class);
 
   static enum Counters {
     GOOD_MATCHES,  // Number of matches considered 'real'
